@@ -1,0 +1,198 @@
+unit Unit2;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ExtCtrls, Vcl.StdCtrls,
+  Vcl.Buttons, Lists;
+{  const
+  FieldLeft = 0;
+  FieldTop = 0;
+  FieldWidth = 750;
+  FieldHeight = 1500;
+  ButtonWidth = 125;
+  RectMinWidth = 150;
+  RectMinHeight = 50;
+  offset = 30;
+  startX = 20;
+  startY = 20;
+  Radius = 30;
+  arrowk = 12;}
+type
+
+  TForm2 = class(TForm)
+    img1: TImage;
+    mm1: TMainMenu;
+    File1: TMenuItem;
+    New1: TMenuItem;
+    Open1: TMenuItem;
+    Save1: TMenuItem;
+    Export1: TMenuItem;
+    Undo1: TMenuItem;
+    BtnRect: TBitBtn;
+    BtnIF: TBitBtn;
+    procedure FormCreate(Sender: TObject);
+    procedure BtnRectClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+k:Integer;
+  FieldLeft:Integer = 0;
+  FieldTop:Integer = 0;
+  FieldWidth:Integer = 750;
+  FieldHeight:Integer = 1500;
+  ButtonWidth:Integer;
+  RectMinWidth:Integer = 150;
+  RectMinHeight:Integer = 50;
+  offset:Integer = 30;
+  startX:Integer = 20;
+  startY:Integer = 20;
+  Radius:Integer = 30;
+  arrowk:Integer = 12;
+  Form2: TForm2;
+  Rect: TRect;
+  FigureHead:PFigList;
+implementation
+
+{$R *.dfm}
+procedure DrawVerticalArrows(img1:TImage;p:TFigureInfo);
+var x,y:integer;
+begin
+x:=Round(arrowk*sin(pi/6));
+y:=Round(arrowk*cos(pi/6));
+with img1.Canvas do
+  begin
+  MoveTo(Round((p.x2-p.x1)/2+startX),p.y2);
+  LineTo(Round((p.x2-p.x1)/2+startX),p.y2+offset);
+  LineTo(Round((p.x2-p.x1)/2+startX)+x,p.y2+offset-y);
+  MoveTo(Round((p.x2-p.x1)/2+startX),p.y2+offset);
+    LineTo(Round((p.x2-p.x1)/2+startX)-x,p.y2+offset-y);
+
+  end;
+end;
+procedure defaultDraw(img1:TImage);
+var p:TFigureInfo;
+begin
+  with img1.Canvas do
+  begin
+   Arc(startX,startY,startX+2*Radius,startY+2*Radius,startX+Radius,startY,startX+Radius,startY+2*Radius);
+   Arc(startX+RectMinWidth-2*radius,startY,startX+RectMinWidth,startY+2*Radius,startX+RectMinWidth-Radius,startY+2*Radius,startX+RectMinWidth-Radius,startY);
+   MoveTo(startX+Radius,StartY);
+   LineTo(startX+RectMinWidth-radius,startY);
+   MoveTo(startX+Radius-1,StartY+2*Radius);
+   LineTo(startX+RectMinWidth-radius,startY+2*Radius);
+   p.x1:=startX;
+  p.y1:=startY;
+  p.x2:=startX+rectMinWidth;
+  p.y2:=p.y1+2*Radius;
+  DrawVerticalArrows(img1,p);
+  insertFigure(FigureHead,p);
+  end;
+end;
+
+procedure drawFrame(img1:TImage);
+begin
+  with img1.Canvas do
+  begin
+  MoveTo(0,0);
+  LineTo(img1.Width-1,0);
+  LineTo(img1.Width-1,img1.Height-1);
+  LineTo(0,img1.Height-1);
+  LineTo(0,0);
+  end;
+end;
+procedure RealignForm
+    (Sender: TObject);
+begin
+
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+ClientWidth:=Form2.Width;
+ButtonWidth:=Round(screen.width/12*1);
+BtnRect.Width:=ButtonWidth;
+BtnIF.Width:=ButtonWidth;
+ShowMessage(IntToStr(ButtonWidth));
+k:=ClientWidth;
+FieldWidth:=k-buttonwidth;
+img1.Left:=FieldLeft+ButtonWidth;
+img1.Top:=FieldTop;
+img1.Width:=FieldWidth;
+img1.Height:=FieldHeight;
+
+
+Rect.Left:=FieldLeft;
+Rect.Top:=FieldTop;
+Rect.Right:=FieldTop+FieldWidth;
+Rect.Bottom:=FieldTop+FieldHeight;
+img1.Canvas.Brush.Color:=clWhite;
+
+img1.Canvas.FillRect(Rect);
+drawFrame(img1);
+createFigureHead(FigureHead);
+defaultDraw(img1);
+end;
+procedure TForm2.FormResize(Sender: TObject);
+begin
+Fieldwidth:=ClientWidth;
+ButtonWidth:=Round(screen.width/12*1);
+BtnRect.Width:=ButtonWidth;
+BtnIF.Width:=ButtonWidth;
+k:=Form2.ClientWidth;
+//FieldWidth:=k-buttonwidth;
+img1.Left:=FieldLeft+ButtonWidth;
+img1.Top:=FieldTop;
+img1.Width:=FieldWidth;
+img1.Height:=FieldHeight;
+
+
+Rect.Left:=0;
+Rect.Top:=0;
+Rect.Right:=img1.Width;
+Rect.Bottom:=img1.Width;
+img1.Canvas.Brush.Color:=clWhite;
+
+img1.Canvas.FillRect(Rect);
+drawFrame(img1);
+createFigureHead(FigureHead);
+defaultDraw(img1);
+end;
+
+procedure drawRect(img1:TImage;p:TFigureInfo);
+begin
+  with img1.Canvas do
+  begin
+    MoveTo(p.x1,p.y1);
+    LineTo(p.x1,p.y2);
+    LineTo(p.x2,p.y2);
+    LineTo(p.x2,p.y1);
+    LineTo(p.x1,p.y1);
+  end;
+end;
+
+procedure TForm2.BtnRectClick(Sender: TObject);
+var p:TFigureInfo;
+
+begin
+
+p.x1:=startX;
+p.y1:=GetY2(FigureHead)+offset;
+p.x2:=p.x1+rectMinWidth;
+p.y2:=p.y1+rectMinHeight;
+DrawVerticalArrows(img1,p);
+insertFigure(FigureHead,p) ;
+ drawRect(img1,p);
+end;
+
+
+
+
+end.
