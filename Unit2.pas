@@ -22,7 +22,6 @@ uses
 type
 
   TForm2 = class(TForm)
-    img1: TImage;
     mm1: TMainMenu;
     File1: TMenuItem;
     New1: TMenuItem;
@@ -32,6 +31,7 @@ type
     Undo1: TMenuItem;
     BtnRect: TBitBtn;
     BtnIF: TBitBtn;
+    pb1: TPaintBox;
     procedure FormCreate(Sender: TObject);
     procedure BtnRectClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -44,7 +44,7 @@ type
   end;
 
 var
-k:Integer;
+  k:Integer;
   FieldLeft:Integer = 0;
   FieldTop:Integer = 0;
   FieldWidth:Integer = 750;
@@ -63,7 +63,7 @@ k:Integer;
 implementation
 
 {$R *.dfm}
-procedure DrawVerticalArrows(img1:TImage;p:TFigureInfo);
+procedure DrawVerticalArrows(img1:TPaintBox;p:TFigureInfo);
 var x,y:integer;
 begin
 img1.canvas.Pen.Width:=3;
@@ -79,7 +79,7 @@ with img1.Canvas do
 
   end;
 end;
-procedure defaultDraw(img1:TImage);
+procedure defaultDraw(img1:TPaintBox);
 var p:TFigureInfo;
 begin
 img1.canvas.Pen.Width:=3;
@@ -118,7 +118,7 @@ createFigureHead(FigureHead);
 defaultDraw(img1);
 end;
 
-procedure clrscreen(img1:TImage);
+procedure clrscreen(img1:TPaintBox);
 begin
   img1.Canvas.Rectangle(0,0,img1.width,img1.Height);
 end;
@@ -137,7 +137,7 @@ begin
 //defaultDraw(img1);
 end;
 
-procedure drawRect(img1:TImage;p:TFigureInfo);
+procedure drawRect(img1:TPaintBox;p:TFigureInfo);
 begin
 img1.canvas.Pen.Width:=3;
   with img1.Canvas do
@@ -152,8 +152,8 @@ end;
 
 procedure TForm2.BtnIFClick(Sender: TObject);
 begin
- img1.Picture.Bitmap.Height:=img1.Picture.Bitmap.Height+200;
- img1.Picture.Bitmap.Width:=img1.Picture.Bitmap.Width+200;
+ img1.Height:=img1.Height+200;
+ img1.Width:=img1.Width+200;
 end;
 
 procedure TForm2.BtnRectClick(Sender: TObject);
@@ -165,8 +165,8 @@ p.x1:=startX;
 p.y1:=GetY2(FigureHead)+offset;
 p.x2:=p.x1+rectMinWidth;
 p.y2:=p.y1+rectMinHeight;
-if p.y1>img1.Picture.Bitmap.Height-200 then
-img1.Picture.Bitmap.Height:=img1.Picture.Bitmap.Height+200;
+if p.y1>img1.Height-200 then
+img1.Height:=img1.Height+200;
 
 DrawVerticalArrows(img1,p);
 insertFigure(FigureHead,p) ;
@@ -177,3 +177,4 @@ end;
 
 
 end.
+

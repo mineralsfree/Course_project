@@ -2,7 +2,7 @@ object Form2: TForm2
   Left = 0
   Top = 0
   Width = 1000
-  Height = 800
+  Height = 740
   HorzScrollBar.Smooth = True
   HorzScrollBar.Tracking = True
   VertScrollBar.Smooth = True
@@ -25,15 +25,11 @@ object Form2: TForm2
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
-  object img1: TImage
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 978
-    Height = 400
-    AutoSize = True
-    Enabled = False
-    Proportional = True
+  object pb1: TPaintBox
+    Left = 131
+    Top = 0
+    Width = 302
+    Height = 329
   end
   object BtnRect: TBitBtn
     Left = 0
