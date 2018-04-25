@@ -1,14 +1,13 @@
 object Form2: TForm2
   Left = 0
   Top = 0
-  Width = 1000
-  Height = 800
   HorzScrollBar.Smooth = True
   HorzScrollBar.Tracking = True
   VertScrollBar.Smooth = True
   VertScrollBar.Tracking = True
-  AutoScroll = True
   Caption = 'Form2'
+  ClientHeight = 681
+  ClientWidth = 984
   Color = clBtnFace
   DefaultMonitor = dmPrimary
   Font.Charset = DEFAULT_CHARSET
@@ -25,15 +24,36 @@ object Form2: TForm2
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
-  object img1: TImage
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 978
-    Height = 400
-    AutoSize = True
-    Enabled = False
-    Proportional = True
+  object ScrollBox1: TScrollBox
+    Left = 0
+    Top = 0
+    Width = 984
+    Height = 681
+    VertScrollBar.ButtonSize = 300
+    VertScrollBar.Increment = 24
+    Align = alClient
+    TabOrder = 1
+    OnMouseWheelDown = ScrollBox1MouseWheelDown
+    OnMouseWheelUp = ScrollBox1MouseWheelUp
+    ExplicitLeft = 128
+    ExplicitWidth = 848
+    ExplicitHeight = 500
+    object pb1: TPaintBox
+      Left = 1
+      Top = -2
+      Width = 656
+      Height = 403
+      Color = clWhite
+      ParentColor = False
+    end
+    object pbcanv: TPaintBox
+      Left = 8
+      Top = 8
+      Width = 729
+      Height = 329
+      Color = clWhite
+      ParentColor = False
+    end
   end
   object BtnRect: TBitBtn
     Left = 0
@@ -105,7 +125,7 @@ object Form2: TForm2
     Top = 98
     Width = 125
     Height = 100
-    TabOrder = 1
+    TabOrder = 2
     OnClick = BtnIFClick
   end
   object mm1: TMainMenu
