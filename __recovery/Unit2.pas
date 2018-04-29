@@ -58,12 +58,13 @@ k:Integer;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
-  IsLeft,Selected:Boolean;
+  IsRight,Selected:Boolean;
   Form2: TForm2;
   Rect: TRect;
   FigureHead:PFigList;
 ArrowHead:PArrowList;
 ClickFigure: TFigureInfo;
+ClickFigureAdr:PFigList;
 implementation
 
 {$R *.dfm}
@@ -88,11 +89,11 @@ procedure TForm2.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
 if key = 40 then  //  showmessage('down');
-  isleft:=False;
+  IsRight:=False;
 if Key = 39 then  //   showmessage('left');
-  isleft:= True;
+  IsRight:= True;
   pb1.Repaint;
-  DrawDirectArrows(pb1,ClickFigure,IsLeft);
+  DrawDirectArrows(pb1,ClickFigure,IsRight);
   drawRect(pb1,ClickFigure,clLime);
 end;
 
@@ -106,29 +107,16 @@ ClickFigure:=GetClickFig(x,y,FigureHead,Selected);
   if Selected then
   begin
   pb1.Repaint;
-  DrawDirectArrows(pb1,ClickFigure,IsLeft);
+  DrawDirectArrows(pb1,ClickFigure,IsRight);
   drawRect(pb1,ClickFigure,clLime);
   //showMessage(IntToStr(ClickFigure.y1));
   end;
 
 end;
-
-procedure TForm2.pb1Paint(Sender: TObject);
-var temp:PFigList;
+procedure ButtonReaction(Figure: TFigType);
+var p:TFigureInfo;
 begin
-  defaultDraw(pb1,ArrowHead);
-  DrawBlocks(pb1,FigureHead);
-  DrawArrows(pb1,ArrowHead);
-    if Selected then
-  begin
-  DrawDirectArrows(pb1,ClickFigure,IsLeft);
-  drawRect(pb1,ClickFigure,clLime);
-  end;
-
-end;
-procedure makeBorder(var p:TFigureInfo; isLeft:Boolean);
-begin
-  if IsLeft then
+  if IsRight then
   begin
   p.x:=ClickFigure.x+ClickFigure.width+offset;
   p.y:=ClickFigure.y;
@@ -140,51 +128,48 @@ begin
   end;
   p.width:=rectMinWidth;
   p.height:=rectMinHeight;
+p.FigType:=Figure;
+
+if p.y>Form2.pb1.Height-200 then
+begin
+Form2.ScrollBox1.Height:=Form2.ScrollBox1.Height+200;
+Form2.pb1.Height:=Form2.pb1.Height+200;
+end;
+insertVerticalArrows(p,arrowhead);
+if (IsRight) or (Figure = IfFig) then
+  CreateNode(FigureHead,p,ClickFigure)
+else
+insertFigure(FigureHead,p);
+
+Form2.pb1.Repaint;
+end;
+
+procedure TForm2.pb1Paint(Sender: TObject);
+var temp:PFigList;
+begin
+  defaultDraw(pb1,ArrowHead);
+  DrawBlocks(pb1,FigureHead);
+  DrawArrows(pb1,ArrowHead);
+if Selected then
+  begin
+  DrawDirectArrows(pb1,ClickFigure,IsRight);
+  drawRect(pb1,ClickFigure,clLime);
+  end;
 end;
 
 procedure TForm2.btntaskClick(Sender: TObject);
-var p:TFigureInfo;
 begin
-makeBorder(p,isleft);
-p.FigType:=TaskFig;
-if p.y>pb1.Height-200 then
-begin
-ScrollBox1.Height:=ScrollBox1.Height+200;
-pb1.Height:=pb1.Height+200;
-end;
-insertVerticalArrows(p,arrowhead);
-insertFigure(FigureHead,p,isleft);
-pb1.Repaint;
+ButtonReaction(TaskFig);
 end;
 
 procedure TForm2.btnWhileClick(Sender: TObject);
-var p:TFigureInfo;
 begin
-  makeborder(p,IsLeft);
-  if p.y>pb1.Height-200 then
-    begin
-    ScrollBox1.Height:=ScrollBox1.Height+200;
-    pb1.Height:=pb1.Height+200;
-    end;
-p.FigType:=WhileFig;
-insertVerticalArrows(p,arrowhead);
-insertFigure(FigureHead,p,isleft);
-pb1.Repaint;
+ButtonReaction(WhileFig);
 end;
 
 procedure TForm2.btnIfClick(Sender: TObject);
-var p:TFigureInfo;
 begin
-  makeborder(p,IsLeft);
-  if p.y>pb1.Height-200 then
-    begin
-    ScrollBox1.Height:=ScrollBox1.Height+200;
-    pb1.Height:=pb1.Height+200;
-    end;
-p.FigType:=IfFig;
-insertVerticalArrows(p,arrowhead);
-insertFigure(FigureHead,p,isleft);
-pb1.Repaint;
+ButtonReaction(IfFig);
 end;
 
 procedure TForm2.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -199,6 +184,7 @@ begin
 scrollbox1.VertScrollBar.Position:=scrollbox1.VertScrollBar.position - scrollbox1.VertScrollBar.Increment;
 end;
 end.
+
 
 
 
