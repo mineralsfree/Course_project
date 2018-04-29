@@ -42,6 +42,17 @@ type
     L: PFigList;
     R: PFiglist;
   end;
+  function third(x:integer):integer;
+  function half(x:integer):integer;
+
 implementation
+function half(x:integer):integer;
+begin
+  result:=Round(x/2)
+end;
+function third(x:integer):integer;
+begin
+  result:=Round(x/3)
+end;
 
 end.

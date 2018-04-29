@@ -4,11 +4,12 @@ interface
 
 uses System.SysUtils, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
 procedure DrawBlocks(pb1:TPaintBox; head:PFigList);
-procedure insertVerticalArrows(p:TFigureInfo;head:PArrowList);
-procedure defaultDraw(pb1:TPaintBox;head:PArrowList);
-procedure DrawArrows(pb1:TPaintBox;head:PArrowList);
+
+procedure defaultDraw(pb1:TPaintBox);
+
 procedure DrawDirectArrows(pb1:TPaintBox;p:TFigureInfo;left:boolean);
 procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
+
 
 
 implementation
@@ -26,14 +27,7 @@ var
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
-function half(x:integer):integer;
-begin
-  result:=Round(x/2)
-end;
-function third(x:integer):integer;
-begin
-  result:=Round(x/3)
-end;
+
  procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
  var prev:TColor;
 begin
@@ -49,22 +43,7 @@ begin
   end;
   pb1.Canvas.Pen.Color:=prev;
 end;
-procedure insertVerticalArrows(p:TFigureInfo;head:PArrowList);
-var x,y:integer;
-lol:TArrowInfo;
-begin
-  if p.y>0 then
-  begin
-  x:=Round(arrowk*sin(arrAngel));
-  y:=Round(arrowk*cos(arrAngel));
-  lol.x:= round((p.width)/2+startX);
-  lol.y:=p.y + p.Height;
-  lol.length:=offset;
-  lol.ArrowType:=TaskFig;
-  lol.Direction:=Vertical;
-  insertArow(head,lol);
-  end;
-end;
+
 procedure drawA(pb1:TPaintBox;p:TArrowInfo; Color:TColor);
 var x,y:Integer;
 var prevColor:TColor;
@@ -95,20 +74,6 @@ begin
     pb1.Canvas.Pen.Color:=prevColor;
   end;
 end;
-procedure DrawArrows(pb1:TPaintBox;head:PArrowList);
-var temp:PArrowList;
-var x,y:Integer;
-begin
-  x:=Round(arrowk*sin(arrAngel));
-  y:=Round(arrowk*cos(arrAngel));
-temp:=head;
-    while temp^.Adr<>nil do
-      begin
-      drawA(pb1,temp.Info, clBlack);
-      temp:=temp^.Adr;
-       end;
-
-end;
 procedure InsertTXT(pb1:TPaintBox;p:TFigureInfo);
 var
   txt:TLabeledEdit;
@@ -124,7 +89,7 @@ TY:=Round(((p.Height)/2)-(TextH/2))+p.y;
 pb1.Canvas.TextOut(TX,TY,cap);
 end;
 
-procedure defaultDraw(pb1:TPaintBox;head:PArrowList);
+procedure defaultDraw(pb1:TPaintBox);
 var p:TFigureInfo;
   x,y:integer;
 begin
@@ -142,11 +107,10 @@ begin
    p.height:=2*Radius;
    p.width:=RectMinWidth;
    p.Txt:=strBegin;
-  //insertFigure(Fighead,p);
   InsertTXT(pb1,p);
-  insertVerticalArrows(p,head);
   end;
 end;
+
 procedure DrawIF(pb1:TPaintBox; p:TFigureInfo; color:TColor);
 var prev:TColor;
 begin
@@ -197,18 +161,46 @@ begin
   end;
 end;
 procedure DrawBlocks(pb1:TPaintBox; head:PFigList);
-var temp:PFigList;
+var temp,temphead:PFigList;
+var isRight:boolean;
+var inp,outp:PFigList;
+var flag:Boolean;
 begin
+    isRight:=False;
    temp:=head;
-   while temp^.Adr<> nil do
+   if temp.R<>nil  then
+      begin
+      isRight:=true;
+      temphead:=temp.R;
+      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      DrawFigure(pb1,temphead.info,clblack);
+      DrawBlocks(pb1,temp.R);
+      isRight:=false;
+      end;
+   while (temp^.Adr<>nil)  do
    begin
-    temp:=temp^.Adr; //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+     outp:=temp;
+     temp:=temp^.Adr;
+   //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
     DrawFigure(pb1,temp.Info,clBlack);
+    inp:=temp;
+      DrawArrow(pb1,inp.info,outp.info,isRight);
+      if temp.R<>nil  then
+      begin
+      isRight:=true;
+      temphead:=temp.R;
+      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      DrawFigure(pb1,temphead.info,clblack);
+      DrawBlocks(pb1,temp.R);
+      isRight:=false;
+      end;
+
    end;
+
 end;
 procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean);
 var x,y:Integer;
-var arrow:TArrowInfo  ;
+var arrow:TArrowInfo;
 begin
  if left then
  begin
@@ -225,4 +217,7 @@ begin
  arrow.length:=offset;
  drawA(pb1,arrow,clLime);
 end;
+
+
+
 end.

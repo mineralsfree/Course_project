@@ -6,20 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, math,
   Vcl.Menus,Vcl.Buttons, Lists, System.ImageList, Vcl.ImgList, Vcl.ComCtrls,
-  Vcl.ToolWin;
-{  const
-  FieldLeft = 0;
-  FieldTop = 0;
-  FieldWidth = 750;
-  FieldHeight = 1500;
-  ButtonWidth = 125;
-  RectMinWidth = 150;
-  RectMinHeight = 50;
-  offset = 30;
-  startX = 20;
-  startY = 20;
-  Radius = 30;
-  arrowk = 12;}
+  Vcl.ToolWin,Types_const, DrawItems;
 type
 
   TForm2 = class(TForm)
@@ -36,17 +23,19 @@ type
     il1: TImageList;
     btn1: TToolButton;
     btn2: TToolButton;
-    btn3: TToolButton;
+    btnWhile: TToolButton;
     procedure FormCreate(Sender: TObject);
-
-
-    procedure BtnIFClick(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure pb1Paint(Sender: TObject);
-    procedure btn1Click(Sender: TObject);
+    procedure btntaskClick(Sender: TObject);
+    procedure btnIfClick(Sender: TObject);
+    procedure pb1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure btnWhileClick(Sender: TObject);
 
 
   private
@@ -68,112 +57,116 @@ k:Integer;
   startY:Integer = 20;
   Radius:Integer = 30;
   arrowk:Integer = 12;
+  arrAngel: real = Pi/6;
+  IsRight,Selected:Boolean;
   Form2: TForm2;
   Rect: TRect;
   FigureHead:PFigList;
+ClickFigure: TFigureInfo;
+ClickFigureAdr:PFigList;
 implementation
 
 {$R *.dfm}
-procedure DrawVerticalArrows(pb1:TPaintBox;p:TFigureInfo);
-var x,y:integer;
-begin
-  pb1.canvas.Pen.Width:=3;
-  x:=Round(arrowk*sin(pi/6));
-  y:=Round(arrowk*cos(pi/6));
-  with pb1.Canvas do
-  begin
-  MoveTo(Round((p.x2-p.x1)/2+startX),p.y2);
-  LineTo(Round((p.x2-p.x1)/2+startX),p.y2+offset);
-  LineTo(Round((p.x2-p.x1)/2+startX)+x,p.y2+offset-y);
-  MoveTo(Round((p.x2-p.x1)/2+startX),p.y2+offset);
-  LineTo(Round((p.x2-p.x1)/2+startX)-x,p.y2+offset-y);
-  end;
-end;
-procedure defaultDraw(pb1:TPaintBox);
-var p:TFigureInfo;
-begin
-pb1.canvas.Pen.Width:=3;
-  with pb1.Canvas do
-  begin
-   Arc(startX,startY,startX+2*Radius,startY+2*Radius,startX+Radius,startY,startX+Radius,startY+2*Radius);
-   Arc(startX+RectMinWidth-2*radius,startY,startX+RectMinWidth,startY+2*Radius,startX+RectMinWidth-Radius,startY+2*Radius,startX+RectMinWidth-Radius,startY);
-   MoveTo(startX+Radius,StartY);
-   LineTo(startX+RectMinWidth-radius,startY);
-   MoveTo(startX+Radius-1,StartY+2*Radius);
-   LineTo(startX+RectMinWidth-radius,startY+2*Radius);
-  p.x1:=startX;
-  p.y1:=startY;
-  p.x2:=startX+rectMinWidth;
-  p.y2:=p.y1+2*Radius;
-  DrawVerticalArrows(pb1,p);
-  //insertFigure(FigureHead,p);
-  end;
-end;
-
-procedure TForm2.FormCreate(Sender: TObject);
-begin
-pb1.canvas.Pen.Width:=3;
-createFigureHead(FigureHead);
-end;
 
 procedure clrscreen(pb1:TPaintBox);
 begin
   pb1.Canvas.Brush.Color:=clWhite;
   pb1.Canvas.Rectangle(0,0,pb1.width,pb1.Height);
 end;
-
-
- procedure drawRect(pb1:TPaintBox;p:TFigureInfo);
+procedure TForm2.FormCreate(Sender: TObject);
+var INIT:TFigureInfo;
 begin
-  with pb1.Canvas do
+pb1.canvas.Pen.Width:=3;
+createFigureHead(FigureHead);
+ClickFigure:=FigureHead.Info;
+clrscreen(pb1);
+Selected:=False;
+end;
+
+procedure TForm2.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+if key = 40 then  //  showmessage('down');
+  IsRight:=False;
+if Key = 39 then  //   showmessage('left');
+  IsRight:= True;
+  pb1.Repaint;
+  DrawDirectArrows(pb1,ClickFigure,IsRight);
+  drawRect(pb1,ClickFigure,clLime);
+end;
+
+procedure TForm2.pb1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var x0,y0:Integer;
+begin
+
+//ShowMessage(IntToStr(x));
+ClickFigure:=GetClickFig(x,y,FigureHead,Selected);
+  if Selected then
   begin
-    MoveTo(p.x1,p.y1);
-    LineTo(p.x1,p.y2);
-    LineTo(p.x2,p.y2);
-    LineTo(p.x2,p.y1);
-    LineTo(p.x1,p.y1);
+  pb1.Repaint;
+  DrawDirectArrows(pb1,ClickFigure,IsRight);
+  drawRect(pb1,ClickFigure,clLime);
+  //showMessage(IntToStr(ClickFigure.y1));
   end;
+
+end;
+procedure ButtonReaction(Figure: TFigType);
+var p:TFigureInfo;
+begin
+  if IsRight then
+  begin
+  p.x:=ClickFigure.x+ClickFigure.width+offset;
+  p.y:=ClickFigure.y;
+  end
+  else
+  begin
+  p.x:=ClickFigure.x;
+  p.y:=ClickFigure.y+ClickFigure.Height+offset;
+  end;
+  p.width:=rectMinWidth;
+  p.height:=rectMinHeight;
+p.FigType:=Figure;
+
+if p.y>Form2.pb1.Height-200 then
+begin
+Form2.ScrollBox1.Height:=Form2.ScrollBox1.Height+200;
+Form2.pb1.Height:=Form2.pb1.Height+200;
+end;
+if (IsRight) or (Figure = IfFig) then
+  CreateNode(FigureHead,p,ClickFigure)
+else
+insertFigure(FigureHead,p,ClickFigure);
+
+Form2.pb1.Repaint;
 end;
 procedure TForm2.pb1Paint(Sender: TObject);
 var temp:PFigList;
 begin
-  with pb1.Canvas do
-  begin
   defaultDraw(pb1);
-   temp:=FigureHead;
-   while temp^.Adr<> nil do
-   begin
-    drawRect(pb1,temp.Info);
-    DrawVerticalArrows(pb1,temp.Info);
-    temp:=temp^.Adr;
-   end;
+  DrawBlocks(pb1,FigureHead);
+if Selected then
+  begin
+  DrawDirectArrows(pb1,ClickFigure,IsRight);
+  drawRect(pb1,ClickFigure,clLime);
   end;
 end;
 
-procedure TForm2.btn1Click(Sender: TObject);
-var p:TFigureInfo;
+procedure TForm2.btntaskClick(Sender: TObject);
 begin
-p.x1:=startX;
-p.y1:=GetY2(FigureHead)+offset;
-p.x2:=p.x1+rectMinWidth;
-p.y2:=p.y1+rectMinHeight;
-if p.y1>pb1.Height-200 then
-begin
-ScrollBox1.Height:=ScrollBox1.Height+200;
-pb1.Height:=pb1.Height+200;
-end;
-insertFigure(FigureHead,p) ;
-pb1.Repaint;
+ButtonReaction(TaskFig);
 end;
 
-
-
-
-procedure TForm2.BtnIFClick(Sender: TObject);
+procedure TForm2.btnWhileClick(Sender: TObject);
 begin
- pb1.Height:=pb1.Height+200;
- pb1.Width:=pb1.Width+200;
+ButtonReaction(WhileFig);
 end;
+
+procedure TForm2.btnIfClick(Sender: TObject);
+begin
+ButtonReaction(IfFig);
+end;
+
 procedure TForm2.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
@@ -186,6 +179,7 @@ begin
 scrollbox1.VertScrollBar.Position:=scrollbox1.VertScrollBar.position - scrollbox1.VertScrollBar.Increment;
 end;
 end.
+
 
 
 

@@ -21,6 +21,7 @@ object Form2: TForm2
   PrintScale = poNone
   WindowState = wsMaximized
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object ScrollBox1: TScrollBox
@@ -34,15 +35,14 @@ object Form2: TForm2
     TabOrder = 1
     OnMouseWheelDown = ScrollBox1MouseWheelDown
     OnMouseWheelUp = ScrollBox1MouseWheelUp
-    ExplicitTop = 72
-    ExplicitHeight = 681
     object pb1: TPaintBox
       Left = 0
       Top = -2
       Width = 656
       Height = 403
-      Color = clWhite
+      Color = clBtnFace
       ParentColor = False
+      OnMouseDown = pb1MouseDown
       OnPaint = pb1Paint
     end
   end
@@ -59,21 +59,23 @@ object Form2: TForm2
     object btn1: TToolButton
       Left = 0
       Top = 0
-      Caption = 'btn1'
+      Caption = 'btntask'
       ImageIndex = 0
-      OnClick = btn1Click
+      OnClick = btntaskClick
     end
     object btn2: TToolButton
       Left = 71
       Top = 0
-      Caption = 'btn2'
+      Caption = 'btnIf'
       ImageIndex = 1
+      OnClick = btnIfClick
     end
-    object btn3: TToolButton
+    object btnWhile: TToolButton
       Left = 142
       Top = 0
-      Caption = 'btn3'
+      Caption = 'btnWhile'
       ImageIndex = 2
+      OnClick = btnWhileClick
     end
   end
   object mm1: TMainMenu
