@@ -1,11 +1,15 @@
 unit Lists;
 
 interface
+
 uses System.SysUtils;
+
 type
+   TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
 
     TPointsInfo = record
     id,x0,y0,x,y: integer;
+    FigType: TFigType;
   end;
   PPointsList = ^TPointsList;
   TPointsList = record
@@ -40,7 +44,7 @@ begin
   Result:=temp.Info.y2;
   end
   else
-  result:=0;
+  result:=80;
 end;
 procedure createFigureHead(var head:PFigList);
 begin

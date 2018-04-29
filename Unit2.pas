@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, math,
-  Vcl.Menus,Vcl.Buttons, Lists;
+  Vcl.Menus,Vcl.Buttons, Lists, System.ImageList, Vcl.ImgList, Vcl.ComCtrls,
+  Vcl.ToolWin;
 {  const
   FieldLeft = 0;
   FieldTop = 0;
@@ -29,19 +30,23 @@ type
     Save1: TMenuItem;
     Export1: TMenuItem;
     Undo1: TMenuItem;
-    BtnRect: TBitBtn;
-    BtnIF: TBitBtn;
     ScrollBox1: TScrollBox;
     pb1: TPaintBox;
-    pbcanv: TPaintBox;
+    tlb1: TToolBar;
+    il1: TImageList;
+    btn1: TToolButton;
+    btn2: TToolButton;
+    btn3: TToolButton;
     procedure FormCreate(Sender: TObject);
-    procedure BtnRectClick(Sender: TObject);
-    procedure FormResize(Sender: TObject);
+
+
     procedure BtnIFClick(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
+    procedure pb1Paint(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
 
 
   private
@@ -49,7 +54,6 @@ type
   public
     { Public declarations }
   end;
-
 var
 k:Integer;
   FieldLeft:Integer = 0;
@@ -84,7 +88,6 @@ begin
   MoveTo(Round((p.x2-p.x1)/2+startX),p.y2+offset);
   LineTo(Round((p.x2-p.x1)/2+startX)-x,p.y2+offset-y);
   end;
-  pb1.Repaint;
 end;
 procedure defaultDraw(pb1:TPaintBox);
 var p:TFigureInfo;
@@ -98,60 +101,79 @@ pb1.canvas.Pen.Width:=3;
    LineTo(startX+RectMinWidth-radius,startY);
    MoveTo(startX+Radius-1,StartY+2*Radius);
    LineTo(startX+RectMinWidth-radius,startY+2*Radius);
-   p.x1:=startX;
+  p.x1:=startX;
   p.y1:=startY;
   p.x2:=startX+rectMinWidth;
   p.y2:=p.y1+2*Radius;
   DrawVerticalArrows(pb1,p);
-  insertFigure(FigureHead,p);
+  //insertFigure(FigureHead,p);
   end;
 end;
 
-
-
 procedure TForm2.FormCreate(Sender: TObject);
 begin
-
 pb1.canvas.Pen.Width:=3;
-{ButtonWidth:=Round(screen.width/12*1);
-//ScrollBox1.Left:=ButtonWidth;
-
-pb1.Left:=ButtonWidth;
-pb1.width:=ClientWidth-buttonWidth;
-pb1.Height:=ClientHeight;
-//ScrollBox1.Width:=pb1.Width;
-ScrollBox1.ScrollInView(pb1);
-BtnRect.Width:=ButtonWidth;
-BtnIF.Width:=ButtonWidth;}
-with pb1.Canvas do
-begin
-  Moveto(10,10);
-  LineTo(20,20);
-end;
 createFigureHead(FigureHead);
-defaultDraw(pb1);
 end;
 
 procedure clrscreen(pb1:TPaintBox);
 begin
+  pb1.Canvas.Brush.Color:=clWhite;
   pb1.Canvas.Rectangle(0,0,pb1.width,pb1.Height);
 end;
 
-procedure TForm2.FormResize(Sender: TObject);
+
+ procedure drawRect(pb1:TPaintBox;p:TFigureInfo);
 begin
-//pb1.Margins.Left:=ButtonWidth;
-//pb1.Align:=alClient;
-//clrscreen(pb1);
-//pb1..Height:=ClientHeight;
-//pb1..Width:= ClientWidth-buttonWidth;
-//pb1.Left:=ButtonWidth;
-//pb1.Repaint;
-//drawFrame(pb1);
-//clrscreen(pb1);
-//defaultDraw(pb1);
+  with pb1.Canvas do
+  begin
+    MoveTo(p.x1,p.y1);
+    LineTo(p.x1,p.y2);
+    LineTo(p.x2,p.y2);
+    LineTo(p.x2,p.y1);
+    LineTo(p.x1,p.y1);
+  end;
+end;
+procedure TForm2.pb1Paint(Sender: TObject);
+var temp:PFigList;
+begin
+  with pb1.Canvas do
+  begin
+  defaultDraw(pb1);
+   temp:=FigureHead;
+   while temp^.Adr<> nil do
+   begin
+    drawRect(pb1,temp.Info);
+    DrawVerticalArrows(pb1,temp.Info);
+    temp:=temp^.Adr;
+   end;
+  end;
+end;
+
+procedure TForm2.btn1Click(Sender: TObject);
+var p:TFigureInfo;
+begin
+p.x1:=startX;
+p.y1:=GetY2(FigureHead)+offset;
+p.x2:=p.x1+rectMinWidth;
+p.y2:=p.y1+rectMinHeight;
+if p.y1>pb1.Height-200 then
+begin
+ScrollBox1.Height:=ScrollBox1.Height+200;
+pb1.Height:=pb1.Height+200;
+end;
+insertFigure(FigureHead,p) ;
+pb1.Repaint;
 end;
 
 
+
+
+procedure TForm2.BtnIFClick(Sender: TObject);
+begin
+ pb1.Height:=pb1.Height+200;
+ pb1.Width:=pb1.Width+200;
+end;
 procedure TForm2.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
@@ -163,61 +185,6 @@ procedure TForm2.ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
 begin
 scrollbox1.VertScrollBar.Position:=scrollbox1.VertScrollBar.position - scrollbox1.VertScrollBar.Increment;
 end;
-
-procedure drawRect(pb1:TPaintBox;p:TFigureInfo);
-begin
-pb1.canvas.Pen.Width:=3;
-  with pb1.Canvas do
-  begin
-    MoveTo(p.x1,p.y1);
-    LineTo(p.x1,p.y2);
-    LineTo(p.x2,p.y2);
-    LineTo(p.x2,p.y1);
-    LineTo(p.x1,p.y1);
-  end;
-end;
-
-procedure TForm2.BtnIFClick(Sender: TObject);
-begin
- pb1.Height:=pb1.Height+200;
- pb1.Width:=pb1.Width+200;
-end;
-procedure writeTree(FigureHead:PFigList; pb1:TPaintBox);
-var temp:PFigList;
-begin
-  //defaultDraw(pb1);
- temp:=FigureHead;
-   while temp^.Adr<> nil do
-   begin
-    drawRect(pb1,temp.Info);
-    DrawVerticalArrows(pb1,temp.Info);
-    temp:=temp^.Adr;
-   end;
-
-end;
-
-procedure TForm2.BtnRectClick(Sender: TObject);
-var p:TFigureInfo;
-
-begin
-
-p.x1:=startX;
-p.y1:=GetY2(FigureHead)+offset;
-p.x2:=p.x1+rectMinWidth;
-p.y2:=p.y1+rectMinHeight;
-if p.y1>pb1.Height-200 then
-begin
-ScrollBox1.Height:=ScrollBox1.Height+200;
-pb1.Height:=pb1.Height+200;
-end;
-
-insertFigure(FigureHead,p) ;
-writeTree(FigureHead,pb1);
-//drawRect(pb1,p);
-//ShowMessage(IntToStr(pb1.Height));
-end;
-
-
 end.
 
 

@@ -2,8 +2,8 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>1899.12.30 00:00:00.000.245,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.164,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Lists.pas=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.525,C:\Users\nikita\Documents\GitHub\Course_project\Project2.dproj=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.525,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Project2.dproj=C:\Users\nikita\Documents\GitHub\Course_project\Project2.dproj</Transaction>
     <Transaction>1899.12.30 00:00:00.000.314,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.164,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Lists.pas</Transaction>
   </Transactions>
 </BorlandProject>
