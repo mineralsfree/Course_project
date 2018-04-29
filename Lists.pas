@@ -33,6 +33,8 @@ begin
   head.Info.width:=RectMinWidth;
   head.Info.Height:=2*radius;
   head.Info.level:=1;
+  head.R:=nil;
+  head.Info.FigType:=TaskFig;
 end;
  function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
   var temp:PFigList;
@@ -54,7 +56,6 @@ procedure insertFigure({pb1:TPaintBox;}head:PFigList; points:TFigureInfo;LRec:TF
 var LRecAdr,temp:PFigList;
 begin
   LRecAdr:=getadr(head,LRec);
- // DrawArrow(pb1,points,LRec,False);
 
   new(LRecAdr^.Adr);
   temp:=LRecAdr^.Adr;
@@ -63,6 +64,7 @@ begin
   temp^.L:=nil;
   temp^.R:=nil;
   temp^.Info:=points;
+
 end;
 function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFigureInfo;
 var temp:PfigList;

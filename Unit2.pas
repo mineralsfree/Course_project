@@ -24,6 +24,7 @@ type
     btn1: TToolButton;
     btn2: TToolButton;
     btnWhile: TToolButton;
+    lbl1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
@@ -93,6 +94,12 @@ if Key = 39 then  //   showmessage('left');
   pb1.Repaint;
   DrawDirectArrows(pb1,ClickFigure,IsRight);
   drawRect(pb1,ClickFigure,clLime);
+  lbl1.Caption:=
+   'x: '+ IntToStr(ClickFigure.x) +#10#13
+  +'y: '+ IntToStr(ClickFigure.y) +#10#13
+  +'width: '+ IntToStr(ClickFigure.width) +#10#13
+  +'height: '+ IntToStr(ClickFigure.height) +#10#13
+  +'level: '+ IntToStr(ClickFigure.level) +#10#13;
 end;
 
 procedure TForm2.pb1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -136,7 +143,10 @@ end;
 if (IsRight) or (Figure = IfFig) then
   CreateNode(FigureHead,p,ClickFigure)
 else
+begin
+p.level:=ClickFigure.level;
 insertFigure(FigureHead,p,ClickFigure);
+end;
 
 Form2.pb1.Repaint;
 end;
