@@ -2,15 +2,13 @@ unit DrawItems;
 
 interface
 
-uses System.SysUtils, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList);
-
+uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
+procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer);
 procedure defaultDraw(pb1:TPaintBox);
-
 procedure DrawDirectArrows(pb1:TPaintBox;p:TFigureInfo;left:boolean);
 procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
-
-
+procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
+function IsEmptyTXT(p:TFigureInfo):Boolean;
 
 implementation
 var
@@ -27,7 +25,35 @@ var
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
-
+  procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
+var
+  txt:TLabeledEdit;
+  TX,TY:Integer;
+  TextW,TextH: Integer;
+  cap:String;
+  Rectan:Trect;
+  border:Integer;
+  oldStyle:TBrushStyle;
+begin
+oldStyle:=pb1.Canvas.Brush.Style;
+pb1.Canvas.Brush.Style:=bsClear;
+border:=pb1.Canvas.Pen.Width;
+Rectan:=Rect(p.x,p.y,p.x + p.width,p.y + p.Height);
+cap:=p.Txt;
+TextW:=pb1.Canvas.TextWidth(cap);
+TextH:=pb1.Canvas.TextHeight(cap);
+TX:=Round(((p.width)/2)-(TextW/2))+p.x;
+TY:=Round(((p.Height)/2)-(TextH/2))+p.y;
+pb1.Canvas.Brush.Style:=bsClear;
+pb1.Canvas.TextRect(Rectan,cap,[tfVerticalCenter ,tfWordBreak]);
+pb1.Canvas.Brush.Style:=oldStyle;
+end;
+ function IsEmptyTXT(p:TFigureInfo):Boolean;
+ begin
+ Result:=False;
+   if p.Txt=''  then
+   result:=True;
+ end;
  procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
  var prev:TColor;
 begin
@@ -42,6 +68,7 @@ begin
     LineTo(p.x,p.y);
   end;
   pb1.Canvas.Pen.Color:=prev;
+  InsertTXT(pb1,p);
 end;
 
 procedure drawA(pb1:TPaintBox;p:TArrowInfo; Color:TColor);
@@ -74,20 +101,7 @@ begin
     pb1.Canvas.Pen.Color:=prevColor;
   end;
 end;
-procedure InsertTXT(pb1:TPaintBox;p:TFigureInfo);
-var
-  txt:TLabeledEdit;
-  TX,TY:Integer;
-  TextW,TextH: Integer;
-  cap:String;
-begin
-cap:=p.Txt;
-TextW:=pb1.Canvas.TextWidth(cap);
-TextH:=pb1.Canvas.TextHeight(cap);
-TX:=Round(((p.width)/2)-(TextW/2))+p.x;
-TY:=Round(((p.Height)/2)-(TextH/2))+p.y;
-pb1.Canvas.TextOut(TX,TY,cap);
-end;
+
 
 procedure defaultDraw(pb1:TPaintBox);
 var p:TFigureInfo;
@@ -107,7 +121,7 @@ begin
    p.height:=2*Radius;
    p.width:=RectMinWidth;
    p.Txt:=strBegin;
-  InsertTXT(pb1,p);
+  //InsertTXT(pb1,p);
   end;
 end;
 
@@ -149,6 +163,7 @@ begin
       TaskFig:
         begin
         drawRect(pb1,p,color);
+        //InsertTXT(pb1,p);
         end;
         IfFig:
         begin
@@ -159,13 +174,16 @@ begin
         drawWhile(pb1,p,color);
         end;
   end;
+
 end;
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList);
+procedure DrawBlocks(pb1:TPaintBox; head:PFigList;var maxX,maxY:integer);
 var temp,temphead:PFigList;
 var isRight:boolean;
 var inp,outp:PFigList;
 var flag:Boolean;
 begin
+  maxX:=0;
+  maxY:=0;
     isRight:=False;
    temp:=head;
    if temp.R<>nil  then
@@ -174,14 +192,19 @@ begin
       temphead:=temp.R;
       DrawArrow(pb1,temp.r.info,temp.info,isRight);
       DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R);
+      DrawBlocks(pb1,temp.R,maxX,maxY);
       isRight:=false;
-      end;
+        if temp.Info.x > maxX then
+        maxX:=temp.Info.x;
+     end;
    while (temp^.Adr<>nil)  do
    begin
      outp:=temp;
      temp:=temp^.Adr;
    //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+
+      if temp.Info.y > maxY  then
+        maxY:=temp.Info.y;
     DrawFigure(pb1,temp.Info,clBlack);
     inp:=temp;
       DrawArrow(pb1,inp.info,outp.info,isRight);
@@ -191,7 +214,7 @@ begin
       temphead:=temp.R;
       DrawArrow(pb1,temp.r.info,temp.info,isRight);
       DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R);
+      DrawBlocks(pb1,temp.R,maxX,maxY);
       isRight:=false;
       end;
 
@@ -215,7 +238,7 @@ begin
  arrow.y:=p.y+p.Height;
  end;
  arrow.length:=offset;
- drawA(pb1,arrow,clLime);
+ drawA(pb1,arrow,clBlue);
 end;
 
 

@@ -1,4 +1,4 @@
-object Form2: TForm2
+object Kek: TKek
   Left = 0
   Top = 0
   HorzScrollBar.Smooth = True
@@ -52,9 +52,17 @@ object Form2: TForm2
       Height = 13
       Align = alBottom
       Caption = 'lbl1'
-      ExplicitLeft = 152
-      ExplicitTop = 128
       ExplicitWidth = 16
+    end
+    object mmo1: TMemo
+      Left = 471
+      Top = 104
+      Width = 185
+      Height = 89
+      Lines.Strings = (
+        'mmo1')
+      TabOrder = 0
+      Visible = False
     end
   end
   object tlb1: TToolBar
@@ -115,7 +123,7 @@ object Form2: TForm2
     Width = 64
     Left = 32
     Bitmap = {
-      494C010103001400240040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101030014002C0040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000000100004000000001002000000000000000
       010000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF

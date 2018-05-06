@@ -1,9 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.245,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.525,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Project2.dproj=C:\Users\nikita\Documents\GitHub\Course_project\Project2.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.314,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.164,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Lists.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.314,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.961,=C:\Users\MI\Documents\GitHub\Course_project\DrawItems.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.212,=C:\Users\MI\Documents\GitHub\Course_project\Types_const.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.525,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Project2.dproj=C:\Users\nikita\Documents\GitHub\Course_project\Project2.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.245,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2018.05.06 13:04:07.584,=C:\Users\MI\Documents\GitHub\Course_project\gdi32.lib</Transaction>
+    <Transaction>2018.05.06 13:10:51.002,=C:\Users\MI\Documents\GitHub\Course_project\AFXWIN.H</Transaction>
+    <Transaction>2018.05.06 13:18:07.378,C:\Users\MI\Documents\GitHub\Course_project\AFXWIN.H=</Transaction>
+    <Transaction>2018.05.06 13:18:09.845,C:\Users\MI\Documents\GitHub\Course_project\gdi32.lib=</Transaction>
   </Transactions>
 </BorlandProject>

@@ -9,7 +9,7 @@ uses
   Vcl.ToolWin,Types_const, DrawItems;
 type
 
-  TForm2 = class(TForm)
+  TKek = class(TForm)
     mm1: TMainMenu;
     File1: TMenuItem;
     New1: TMenuItem;
@@ -25,6 +25,7 @@ type
     btn2: TToolButton;
     btnWhile: TToolButton;
     lbl1: TLabel;
+    mmo1: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
@@ -60,9 +61,10 @@ k:Integer;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
   IsRight,Selected:Boolean;
-  Form2: TForm2;
+  Kek: TKek;
   Rect: TRect;
   FigureHead:PFigList;
+  maxX, maxY:Integer;
 ClickFigure: TFigureInfo;
 ClickFigureAdr:PFigList;
 implementation
@@ -74,7 +76,7 @@ begin
   pb1.Canvas.Brush.Color:=clWhite;
   pb1.Canvas.Rectangle(0,0,pb1.width,pb1.Height);
 end;
-procedure TForm2.FormCreate(Sender: TObject);
+procedure TKek.FormCreate(Sender: TObject);
 var INIT:TFigureInfo;
 begin
 pb1.canvas.Pen.Width:=3;
@@ -84,47 +86,90 @@ clrscreen(pb1);
 Selected:=False;
 end;
 
-procedure TForm2.FormKeyDown(Sender: TObject; var Key: Word;
+procedure TKek.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+var ClickAdr:PFigList;
 begin
+
+ if Selected then
+begin
+  ClickAdr:=GetAdr(FigureHead,ClickFigure);
+
+   if key = 40 then  //  showmessage('down');
+  if ClickAdr.Adr<>nil then ClickFigure:=ClickAdr.Adr.Info;
+if Key = 39 then  //   showmessage('left');
+ if ClickAdr.R<>nil then ClickFigure:=ClickAdr.R.Info;
+end;
 if key = 40 then  //  showmessage('down');
   IsRight:=False;
 if Key = 39 then  //   showmessage('left');
   IsRight:= True;
   pb1.Repaint;
   DrawDirectArrows(pb1,ClickFigure,IsRight);
-  drawRect(pb1,ClickFigure,clLime);
-  lbl1.Caption:=
-   'x: '+ IntToStr(ClickFigure.x) +#10#13
-  +'y: '+ IntToStr(ClickFigure.y) +#10#13
-  +'width: '+ IntToStr(ClickFigure.width) +#10#13
-  +'height: '+ IntToStr(ClickFigure.height) +#10#13
-  +'level: '+ IntToStr(ClickFigure.level) +#10#13;
+ // drawRect(pb1,ClickFigure,clBlue);
+
 end;
 
-procedure TForm2.pb1MouseDown(Sender: TObject; Button: TMouseButton;
+procedure TKek.pb1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var x0,y0:Integer;
-begin
+var lol:PFigList;
+ var sel:string;
+ var prex:TFigureInfo;
 
-//ShowMessage(IntToStr(x));
+begin
+if Selected and IsEmptyTXT(ClickFigure) then
+begin
+prex:=GetClickFig(x,y,FigureHead,Selected);
+ if (ClickFigure.x = prex.x) and (ClickFigure.y
+  = prex.y)  then
+ begin
+  lol:=GetAdr(FigureHead, ClickFigure);
+  lol.info.Txt:=InputBox('','',prex.Txt);
+  InsertTXT(pb1,ClickFigure);
+  Exit;
+ end;
+end;
 ClickFigure:=GetClickFig(x,y,FigureHead,Selected);
+sel:= 'Not selected';
+if selected then
+sel:= 'selected' else sel:='Not selected';
+  lbl1.Caption:=
+   'width: '+ IntToStr(ClickFigure.width) +#10#13
+  +'height: '+ IntToStr(ClickFigure.height) +#10#13
+  +'x: '+ IntToStr(ClickFigure.x) +#10#13
+  +'y: '+ IntToStr(ClickFigure.y) +#10#13
+  +'level: '+ IntToStr(ClickFigure.level) +#10#13
+  +'pb1width: '+ IntToStr(Kek.pb1.width) +#10#13
+  +'Selected: '+ sel +#10#13
+  +'maxX: ' + IntToStr(maxX) + #10#13
+  +'TXT '+ ClickFigure.Txt +#10#13;
+
   if Selected then
   begin
   pb1.Repaint;
   DrawDirectArrows(pb1,ClickFigure,IsRight);
-  drawRect(pb1,ClickFigure,clLime);
-  //showMessage(IntToStr(ClickFigure.y1));
+  drawRect(pb1,ClickFigure,clBlue);
   end;
-
 end;
 procedure ButtonReaction(Figure: TFigType);
 var p:TFigureInfo;
 begin
+
   if IsRight then
   begin
-  p.x:=ClickFigure.x+ClickFigure.width+offset;
-  p.y:=ClickFigure.y;
+    case Figure of
+      TaskFig:
+      begin
+        p.x:=ClickFigure.x+ClickFigure.width+offset;
+        p.y:=ClickFigure.y;
+      end;
+      IfFig:
+      begin
+        p.x:=ClickFigure.x+ClickFigure.width+offset;
+        p.y:=ClickFigure.y;
+      end;
+    end;
   end
   else
   begin
@@ -134,61 +179,84 @@ begin
   p.width:=rectMinWidth;
   p.height:=rectMinHeight;
 p.FigType:=Figure;
-
-if p.y>Form2.pb1.Height-200 then
-begin
-Form2.ScrollBox1.Height:=Form2.ScrollBox1.Height+200;
-Form2.pb1.Height:=Form2.pb1.Height+200;
-end;
-if (IsRight) or (Figure = IfFig) then
+p.Txt:='';
+if (IsRight) {or (Figure = IfFig) }then
   CreateNode(FigureHead,p,ClickFigure)
 else
 begin
 p.level:=ClickFigure.level;
 insertFigure(FigureHead,p,ClickFigure);
 end;
-
-Form2.pb1.Repaint;
+Kek.pb1.Repaint;
 end;
-procedure TForm2.pb1Paint(Sender: TObject);
+procedure TKek.pb1Paint(Sender: TObject);
 var temp:PFigList;
 begin
+  if maxY>(Kek.pb1.Height-200) then
+begin
+Kek.ScrollBox1.Height:=Kek.ScrollBox1.Height+200;
+Kek.pb1.Height:=Kek.pb1.Height+200;
+end;
+if maxX>(Kek.pb1.Width-600) then
+begin
+Kek.ScrollBox1.width:=Kek.ScrollBox1.width+500;
+Kek.pb1.width:=Kek.pb1.width+500;
+end;
   defaultDraw(pb1);
-  DrawBlocks(pb1,FigureHead);
+  DrawBlocks(pb1,FigureHead,maxX,maxY);
 if Selected then
   begin
   DrawDirectArrows(pb1,ClickFigure,IsRight);
-  drawRect(pb1,ClickFigure,clLime);
+  drawRect(pb1,ClickFigure,clBlue);
   end;
 end;
 
-procedure TForm2.btntaskClick(Sender: TObject);
+procedure TKek.btntaskClick(Sender: TObject);
 begin
 ButtonReaction(TaskFig);
 end;
 
-procedure TForm2.btnWhileClick(Sender: TObject);
+procedure TKek.btnWhileClick(Sender: TObject);
 begin
 ButtonReaction(WhileFig);
 end;
 
-procedure TForm2.btnIfClick(Sender: TObject);
+procedure TKek.btnIfClick(Sender: TObject);
 begin
 ButtonReaction(IfFig);
 end;
 
-procedure TForm2.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
+procedure TKek.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
+begin
+if ssShift
+ in Shift then
+ begin
+ scrollbox1.HorzScrollBar.Position:=scrollbox1.HorzScrollBar.position + scrollbox1.VertScrollBar.Increment;
+ end
+ else
 begin
 scrollbox1.VertScrollBar.Position:=scrollbox1.VertScrollBar.position + scrollbox1.VertScrollBar.Increment;
 end;
 
-procedure TForm2.ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
+
+end;
+
+procedure TKek.ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
+begin
+if ssShift
+ in Shift then
+ begin
+ scrollbox1.HorzScrollBar.Position:=scrollbox1.HorzScrollBar.position - scrollbox1.VertScrollBar.Increment;
+ end
+ else
 begin
 scrollbox1.VertScrollBar.Position:=scrollbox1.VertScrollBar.position - scrollbox1.VertScrollBar.Increment;
 end;
+end;
 end.
+
 
 
 
