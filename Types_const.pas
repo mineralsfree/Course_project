@@ -1,7 +1,7 @@
 unit Types_const;
 
 interface
-
+uses System.classes;
 const strBegin = 'BEGIN';
   FieldLeft:Integer = 0;
   FieldTop:Integer = 0;
@@ -10,7 +10,7 @@ const strBegin = 'BEGIN';
   RectMinWidth:Integer = 150;
   RectMinHeight:Integer = 100;
   offset:Integer = 75;
-  startX:Integer = 20;
+  startX:Integer = 50;
   startY:Integer = 20;
   Radius:Integer = 30;
   arrowk:Integer = 12;
@@ -31,7 +31,7 @@ type
   end;
 
   TFigureInfo = record
-  Txt: string[255];
+  Txt: string ;
   x,width,y,Height,level:integer;
   FigType: TFigType;
   end;

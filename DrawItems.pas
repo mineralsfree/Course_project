@@ -4,7 +4,7 @@ interface
 
 uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
 procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer);
-procedure defaultDraw(pb1:TPaintBox);
+procedure defaultDraw(head:PFigList;pb1:TPaintBox);
 procedure DrawDirectArrows(pb1:TPaintBox;p:TFigureInfo;left:boolean);
 procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
 procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
@@ -17,14 +17,33 @@ var
   FieldWidth:Integer = 750;
   FieldHeight:Integer = 1500;
   ButtonWidth:Integer;
-  RectMinWidth:Integer = 150;
+  RectMinWidth:Integer = 75;
   RectMinHeight:Integer = 100;
+  ratio:real=1.5;
   offset:Integer = 75;
-  startX:Integer = 20;
+  startX:Integer = 50;
   startY:Integer = 20;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
+  function TextUtil(cap:string):string;
+  var lengthkek,i:Integer;
+  begin
+  lengthkek:=Length(cap);
+    i:=1;
+    while i<Lengthkek do
+
+    begin
+      if ( cap[i]=':') and (cap[i+1]= '=')  then
+      begin
+      Insert('#10#13',cap,i+2);
+      lengthkek:=Length(cap);
+      end;
+      result:=cap;
+      inc(i);
+    end;
+
+  end;
   procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
 var
   txt:TLabeledEdit;
@@ -34,24 +53,40 @@ var
   Rectan:Trect;
   border:Integer;
   oldStyle:TBrushStyle;
+
 begin
 oldStyle:=pb1.Canvas.Brush.Style;
 pb1.Canvas.Brush.Style:=bsClear;
 border:=pb1.Canvas.Pen.Width;
-Rectan:=Rect(p.x,p.y,p.x + p.width,p.y + p.Height);
-cap:=p.Txt;
+
+
+case p.FigType of
+  TaskFig:
+  Rectan:=
+  Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
+  IfFig:
+  Rectan:=
+  Rect(p.x+third(p.width)+border,p.y+third(p.Height)+border,p.x + 2*third(p.width)-2*border,p.y + 2*third(p.Height)-2*border);
+  WhileFig: ;
+  StartFig: ;
+  untilFig: ;
+end;
+//Rectan:=Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
+cap:=(p.Txt);
+//cap:=TextUtil(cap);
 TextW:=pb1.Canvas.TextWidth(cap);
 TextH:=pb1.Canvas.TextHeight(cap);
-TX:=Round(((p.width)/2)-(TextW/2))+p.x;
-TY:=Round(((p.Height)/2)-(TextH/2))+p.y;
+TX:=half(p.width)-half(TextW)+p.x;
+TY:=half(p.Height)-half(TextH)+p.y;
 pb1.Canvas.Brush.Style:=bsClear;
-pb1.Canvas.TextRect(Rectan,cap,[tfVerticalCenter ,tfWordBreak]);
+pb1.Canvas.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
 pb1.Canvas.Brush.Style:=oldStyle;
 end;
+
  function IsEmptyTXT(p:TFigureInfo):Boolean;
  begin
  Result:=False;
-   if p.Txt=''  then
+   if p.Txt= ''  then
    result:=True;
  end;
  procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
@@ -101,27 +136,39 @@ begin
     pb1.Canvas.Pen.Color:=prevColor;
   end;
 end;
+//Draws  semicircle around Input Rectangle
+procedure drawEllipse(pb1:TPaintBox;x,y,width,height:Integer);
+var R:Integer;
+begin
+R:=half(height);
+with pb1.Canvas do
+  begin
+   Arc(x,y,x+height,y+height,x+R,y,x+R,y+height);
+   Arc(x+width-height,y,x+width,y+height,x+width-R,y+height,x+width-R,y);
+   MoveTo(x+r,y);
+   LineTo(x+width-r,y);
+   MoveTo(x+r,y+height);
+   LineTo(x+width-r,y+height);
+   end;
+end;
 
-
-procedure defaultDraw(pb1:TPaintBox);
+procedure defaultDraw(head:PFigList;pb1:TPaintBox);
 var p:TFigureInfo;
   x,y:integer;
+  TX,TY:Integer;
+  TextW,TextH: Integer;
 begin
  pb1.canvas.Pen.Width:=3;
   with pb1.Canvas do
   begin
-   Arc(startX,startY,startX+2*Radius,startY+2*Radius,startX+Radius,startY,startX+Radius,startY+2*Radius);
-   Arc(startX+RectMinWidth-2*radius,startY,startX+RectMinWidth,startY+2*Radius,startX+RectMinWidth-Radius,startY+2*Radius,startX+RectMinWidth-Radius,startY);
-   MoveTo(startX+Radius,StartY);
-   LineTo(startX+RectMinWidth-radius,startY);
-   MoveTo(startX+Radius-1,StartY+2*Radius);
-   LineTo(startX+RectMinWidth-radius,startY+2*Radius);
-   p.x:=startX;
-   p.y:=startY;
-   p.height:=2*Radius;
-   p.width:=RectMinWidth;
-   p.Txt:=strBegin;
-  //InsertTXT(pb1,p);
+  drawEllipse(pb1,head.Info.x ,head.Info.y,Head.info.width,Head.Info.Height);
+  drawEllipse(pb1,p.x ,p.y,100,50);
+  p.Txt:=strBegin;
+  TextW:=pb1.Canvas.TextWidth(strBegin);
+  TextH:=pb1.Canvas.TextHeight(strBegin);
+  TX:=p.x+half(p.width)-half(TextW);
+  TY:=half(p.Height)-half(TextH)+p.y;
+  TextOut(TX,TY,strBegin);
   end;
 end;
 
