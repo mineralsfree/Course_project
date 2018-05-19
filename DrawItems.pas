@@ -5,10 +5,12 @@ interface
 uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
 procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer);
 procedure defaultDraw(head:PFigList;pb1:TPaintBox);
-procedure DrawDirectArrows(pb1:TPaintBox;p:TFigureInfo;left:boolean);
+procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean; ifState:TIfStates);
 procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
 procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
 function IsEmptyTXT(p:TFigureInfo):Boolean;
+procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
+
 
 implementation
 var
@@ -95,18 +97,21 @@ end;
  procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
  var prev:TColor;
 begin
-  prev:=pb1.Canvas.Pen.Color;
-  pb1.Canvas.Pen.Color:=color;
-  with pb1.Canvas do
-  begin
-    MoveTo(p.x,p.y);
-    LineTo(p.x,p.y + p.Height);
-    LineTo(p.x +p.width,p.y + p.Height);
-    LineTo(p.x +p.width,p.y);
-    LineTo(p.x,p.y);
-  end;
-  pb1.Canvas.Pen.Color:=prev;
-  InsertTXT(pb1,p);
+  if p.FigType <> IfFig then
+   begin
+    prev:=pb1.Canvas.Pen.Color;
+    pb1.Canvas.Pen.Color:=color;
+    with pb1.Canvas do
+    begin
+      MoveTo(p.x,p.y);
+      LineTo(p.x,p.y + p.Height);
+      LineTo(p.x +p.width,p.y + p.Height);
+      LineTo(p.x +p.width,p.y);
+      LineTo(p.x,p.y);
+    end;
+    pb1.Canvas.Pen.Color:=prev;
+    InsertTXT(pb1,p);
+   end;
 end;
 
 procedure drawA(pb1:TPaintBox;p:TArrowInfo; Color:TColor);
@@ -233,7 +238,7 @@ begin
 
 end;
 
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList;var maxX,maxY:integer);
+procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer);
 var temp,temphead:PFigList;
 var isRight:boolean;
 var inp,outp:PFigList;
@@ -243,6 +248,8 @@ begin
   maxY:=0;
     isRight:=False;
    temp:=head;
+   if temp.Info.x > maxX then
+        maxX:=temp.Info.x;
    if temp.R<>nil  then
       begin
       isRight:=true;
@@ -254,6 +261,18 @@ begin
         if temp.Info.x > maxX then
         maxX:=temp.Info.x;
      end;
+     if temp.L<>nil  then
+      begin
+      isRight:=true;
+      temphead:=temp.R;
+      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      DrawFigure(pb1,temphead.info,clblack);
+      DrawBlocks(pb1,temp.R,maxX,maxY);
+      isRight:=false;
+        if temp.Info.x > maxX then
+        maxX:=temp.Info.x;
+     end;
+
    while (temp^.Adr<>nil)  do
    begin
      outp:=temp;
@@ -262,6 +281,8 @@ begin
 
       if temp.Info.y > maxY  then
         maxY:=temp.Info.y;
+      if temp.Info.x > maxX then
+        maxX:=temp.Info.x;
     DrawFigure(pb1,temp.Info,clBlack);
     inp:=temp;
       DrawArrow(pb1,inp.info,outp.info,isRight);
@@ -274,29 +295,137 @@ begin
       DrawBlocks(pb1,temp.R,maxX,maxY);
       isRight:=false;
       end;
+            if temp.L<>nil  then
+      begin
+      isRight:=true;
+      temphead:=temp.R;
+      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      DrawFigure(pb1,temphead.info,clblack);
+      DrawBlocks(pb1,temp.R,maxX,maxY);
+      isRight:=false;
+      end;
    end;
 end;
 
-procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean);
+procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean; ifState:TIfStates);
 var x,y:Integer;
 var arrow:TArrowInfo;
+var predC: TColor;
 begin
- if left then
- begin
-  arrow.Direction:=Horizontal;
-  arrow.x:=p.x+p.width;
-  arrow.y:=p.y+half(p.Height);
-  end
- else
- begin
- arrow.Direction:=Vertical;
- arrow.x:=p.x+half(p.width);
- arrow.y:=p.y+p.Height;
- end;
- arrow.length:=offset;
- drawA(pb1,arrow,clBlue);
+predC:=pb1.Canvas.Pen.Color;
+pb1.Canvas.Pen.Color:=clBlue;
+if p.FigType = IfFig then
+  begin
+      case ifState of
+        RUP:
+      begin
+        with pb1.Canvas do
+        begin
+          MoveTo((p.width+p.x-half(half(p.width))),p.y+half(half(p.Height)));
+          LineTo(p.x+p.width+2*offset,p.y-half(offset));
+          LineTo(p.x+p.width+2*offset+Rectminwidth+half(RectMinWidth),p.y-half(offset));
+          LineTo(p.x+p.width+2*offset+Rectminwidth+half(RectMinWidth),p.y);
+        end;
+      end;
+
+      RDOWN:
+      begin
+      with pb1.Canvas do
+      begin
+        MoveTo((p.width+p.x-half(half(p.width))),p.y+3*forth(p.Height));
+        LineTo(p.x+p.width,PenPos.y+forth(p.height));
+        LineTo(penpos.x+RectMinWidth,penpos.y);
+        LineTo(PenPos.X ,penpos.y + offset);
+      end;
+      end;
+
+      DOWN:
+      begin
+      arrow.Direction:=Vertical;
+      arrow.x:=p.x+half(p.width);
+      arrow.y:=p.y+p.Height;
+      arrow.length:=offset;
+       drawA(pb1,arrow,clBlue);
+      end;
+
+    end;
+   end
+else
+  begin
+
+   if left then
+     begin
+      arrow.Direction:=Horizontal;
+      arrow.x:=p.x+p.width;
+      arrow.y:=p.y+half(p.Height);
+      end
+   else
+     begin
+     arrow.Direction:=Vertical;
+     arrow.x:=p.x+half(p.width);
+     arrow.y:=p.y+p.Height;
+     end;
+     arrow.length:=offset;
+     drawA(pb1,arrow,clBlue);
+   end;
+   pb1.Canvas.Pen.Color:=predC;
 end;
 
+procedure RUPArrow(pb1:TPaintBox;outp,inp:TFigureInfo);
+begin
+
+end;
+  procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
+  var x,y:Integer;
+  begin
+   if isRight then
+   begin
+    x:=inp.x;
+    y:=inp.y+half(inp.Height);
+    with pb1.Canvas do
+          begin
+        case outp.FigType of
+          taskFig:
+          begin
+          MoveTo((outp.width+outp.x),outp.y+half(outp.Height));
+          LineTo(x,y);
+            end;
+          IfFig:
+           begin                              //3/4
+           MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+half(half(outp.Height)));
+           LineTo(inp.x,inp.y-half(offset));
+           LineTo(inp.x+half(inp.width),inp.y-half(offset));
+           LineTo(inp.x+half(inp.width),inp.y);
+            end;
+        end;
+       end;
+   end
+   else
+   begin
+    x:=half(inp.width)+inp.x;
+    y:=inp.y;
+     with pb1.Canvas do
+        begin
+     case outp.FigType of
+      taskFig:
+      begin
+          MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
+          LineTo(x,y);
+      end;
+      IfFig:
+      Begin
+      MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
+      LineTo(x,y);
+      End;
+      WhileFig:
+      begin
+        MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
+      end;
+     end;
+
+     end;
+   end;
+  end;
 
 
 end.

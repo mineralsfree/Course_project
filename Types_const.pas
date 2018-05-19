@@ -16,7 +16,8 @@ const strBegin = 'BEGIN';
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
 type
-   TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+  TIfStates = (RUP, RDOWN, DOWN);
+   TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig, RepeatFig);
    TDirection = (Horizontal, Vertical);
 
     TArrowInfo = record
@@ -32,7 +33,7 @@ type
 
   TFigureInfo = record
   Txt: string ;
-  x,width,y,Height,level:integer;
+  x,width,y,Height,level,Row:integer;
   FigType: TFigType;
   end;
   PFigList = ^FigList;
@@ -44,6 +45,7 @@ type
   end;
   function third(x:integer):integer;
   function half(x:integer):integer;
+  function forth(x:integer):integer;
 
 implementation
 function half(x:integer):integer;
@@ -53,6 +55,10 @@ end;
 function third(x:integer):integer;
 begin
   result:=Round(x/3)
+end;
+function forth(x:integer):integer;
+begin
+  result:=Round(x/4)
 end;
 
 end.

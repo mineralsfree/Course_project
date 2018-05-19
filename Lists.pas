@@ -14,7 +14,9 @@ procedure SetLevelWidth(var head:PFigList; lvl,width,increment:Integer);
 procedure insertFigure({pb1:TPaintBox;}head:PFigList; points:TFigureInfo;LRec:TFigureInfo);
   function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
    function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
-  procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
+    procedure createleft(head: PFigList;Points:TFigureInfo; LRec:TFigureInfo);
+  procedure SetAdjustment(const head:PFigList; lvl,row:Integer);
+
 implementation
 procedure createFigureHead(var head:PFigList);
 begin
@@ -27,6 +29,29 @@ begin
   head.Info.level:=1;
   head.R:=nil;
   head.Info.FigType:=TaskFig;
+  head.Info.Row:=0;
+end;
+procedure SetAdjustment(const head:PFigList; lvl,row:Integer);
+var temp,temphead:PFigList;
+begin
+     temp:=head;
+     while (temp<>nil)  do
+     begin
+     //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+        if  (temp.info.level < lvl) and (temp.Info.row>=row) then
+        begin
+        temp.info.y:=temp.info.y + temp.Info.Height + offset;
+        temp.Info.Row:=temp.Info.Row + 1;
+        end;
+
+        if temp.R<>nil  then
+        begin
+          temphead:=temp.R;
+          SetAdjustment(temphead,lvl,row);
+        end;
+        temp:=temp^.Adr;
+     end;
+
 end;
  function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
  var temp:PFigList;
@@ -122,34 +147,52 @@ begin
   end;
 end;
 function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFigureInfo;
-var temp:PfigList;
-begin
-    temp:=head;
+  function GClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFigureInfo;
+  var temp:PfigList;
+  begin
     selected:=False;
-  while (temp<> nil) do
-    begin
-    if temp.R<>nil then
+      temp:=head;
+       if (x > temp.Info.x) and
+         (x < temp.Info.x+temp.Info.width) and
+         (y > temp.Info.y) and
+         (y < temp.Info.y + temp.Info.Height)
+      then
+         begin
+          Result:=temp.Info;
+          selected:=True;
+          Exit;
+         end;
+    while (temp<> nil) do
       begin
-      Result:=GetClickFig(x,y,temp.R,selected);
+      if temp.R<>nil then
+        begin
+        Result:=GClickFig(x,y,temp.R,selected);
+        if selected then exit;
+        end;
+        if (x > temp.Info.x) and
+           (x < temp.Info.x+temp.Info.width) and
+           (y > temp.Info.y) and
+           (y < temp.Info.y + temp.Info.Height)
+        then
+           begin
+            Result:=temp.Info;
+            selected:=True;
+            Exit;
+           end
+        else temp:=temp^.Adr;
+
       end;
-    if (x > temp.Info.x) and
-       (x < temp.Info.x+temp.Info.width) and
-       (y > temp.Info.y) and
-       (y < temp.Info.y + temp.Info.Height)
-    then
-       begin
-        Result:=temp.Info;
-        selected:=True;
-        exit;
-       end
-    else temp:=temp^.Adr;
 
-    end;
-    if selected then
-    Exit;
+      if selected then
+      Exit;
 
-    Result.x:=-1;
-end;
+      Result.x:=-1;
+  end;
+  begin
+
+    Result:=GClickFig(x,y,head,selected);
+
+  end;
 function aHead(head: PFigList;lol:TFigureInfo):boolean;
 begin
 result:= false;
@@ -199,7 +242,23 @@ var LRecAdr,temphead,temp:PFigList;
     begin
     new(LRecAdr^.R);
     temp:=LRecAdr^.R;
-    temp^.L:=LRecAdr;
+    temp^.L:=nil;
+    temp^.Adr:=nil;
+    temp^.R:=nil;
+    temp^.Info:=points;
+    temp^.Info.Txt:='';
+    end;
+  end;
+  procedure createleft(head: PFigList;Points:TFigureInfo; LRec:TFigureInfo);
+var LRecAdr,temphead,temp:PFigList;
+
+  begin
+  LRecAdr:=getadr(head,LRec);
+    {if LRecadr.l = nil then}
+    begin
+    new(LRecAdr^.L);
+    temp:=LRecAdr^.L;
+    temp^.L:=nil;
     temp^.Adr:=nil;
     temp^.R:=nil;
     temp^.Info:=points;
@@ -207,56 +266,6 @@ var LRecAdr,temphead,temp:PFigList;
     end;
   end;
 
-  procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
-  var x,y:Integer;
-  begin
-   if isRight then
-   begin
-    x:=inp.x;
-    y:=inp.y+half(inp.Height);
-    with pb1.Canvas do
-          begin
-        case outp.FigType of
-          taskFig:
-          begin
-          MoveTo((outp.width+outp.x),outp.y+half(outp.Height));
-          LineTo(x,y);
-            end;
-          IfFig:
-           begin                              //3/4
-           MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+half(half(outp.Height)));
-           LineTo(inp.x,inp.y-half(offset));
-           LineTo(inp.x+half(inp.width),inp.y-half(offset));
-           LineTo(inp.x+half(inp.width),inp.y);
-            end;
-        end;
-       end;
-   end
-   else
-   begin
-    x:=half(inp.width)+inp.x;
-    y:=inp.y;
-     with pb1.Canvas do
-        begin
-     case outp.FigType of
-      taskFig:
-      begin
-          MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
-          LineTo(x,y);
-      end;
-      IfFig:
-      Begin
-      MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
-      LineTo(x,y);
-      End;
-      WhileFig:
-      begin
-        MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
-      end;
-     end;
 
-     end;
-   end;
-  end;
 end.
 
