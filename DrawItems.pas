@@ -3,13 +3,13 @@ unit DrawItems;
 interface
 
 uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer);
+procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
 procedure defaultDraw(head:PFigList;pb1:TPaintBox);
 procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean; ifState:TIfStates);
 procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
 procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
 function IsEmptyTXT(p:TFigureInfo):Boolean;
-procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
+procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
 
 
 implementation
@@ -238,7 +238,7 @@ begin
 
 end;
 
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer);
+procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
 var temp,temphead:PFigList;
 var isRight:boolean;
 var inp,outp:PFigList;
@@ -254,9 +254,9 @@ begin
       begin
       isRight:=true;
       temphead:=temp.R;
-      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      DrawArrow(pb1,temp.r.info,temp.info,isRight,ifst);
       DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R,maxX,maxY);
+      DrawBlocks(pb1,temp.R,maxX,maxY,ifst);
       isRight:=false;
         if temp.Info.x > maxX then
         maxX:=temp.Info.x;
@@ -264,10 +264,10 @@ begin
      if temp.L<>nil  then
       begin
       isRight:=true;
-      temphead:=temp.R;
-      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      temphead:=temp.l;
+      DrawArrow(pb1,temp.l.info,temp.info,isRight,ifst);
       DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R,maxX,maxY);
+      DrawBlocks(pb1,temp.l,maxX,maxY,ifst);
       isRight:=false;
         if temp.Info.x > maxX then
         maxX:=temp.Info.x;
@@ -285,23 +285,23 @@ begin
         maxX:=temp.Info.x;
     DrawFigure(pb1,temp.Info,clBlack);
     inp:=temp;
-      DrawArrow(pb1,inp.info,outp.info,isRight);
+      DrawArrow(pb1,inp.info,outp.info,isRight,ifst);
       if temp.R<>nil  then
       begin
       isRight:=true;
       temphead:=temp.R;
-      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      DrawArrow(pb1,temp.r.info,temp.info,isRight,ifst);
       DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R,maxX,maxY);
+      DrawBlocks(pb1,temp.R,maxX,maxY,ifst);
       isRight:=false;
       end;
-            if temp.L<>nil  then
+      if temp.L<>nil  then
       begin
       isRight:=true;
-      temphead:=temp.R;
-      DrawArrow(pb1,temp.r.info,temp.info,isRight);
+      temphead:=temp.l;
+      DrawArrow(pb1,temp.l.info,temp.info,isRight,ifst);
       DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R,maxX,maxY);
+      DrawBlocks(pb1,temp.l,maxX,maxY,ifst);
       isRight:=false;
       end;
    end;
@@ -375,7 +375,7 @@ procedure RUPArrow(pb1:TPaintBox;outp,inp:TFigureInfo);
 begin
 
 end;
-  procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
+  procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
   var x,y:Integer;
   begin
    if isRight then
@@ -391,12 +391,22 @@ end;
           LineTo(x,y);
             end;
           IfFig:
-           begin                              //3/4
-           MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+half(half(outp.Height)));
-           LineTo(inp.x,inp.y-half(offset));
-           LineTo(inp.x+half(inp.width),inp.y-half(offset));
-           LineTo(inp.x+half(inp.width),inp.y);
-            end;
+           begin
+           if outp.level+2  = inp.level then
+             begin                             //3/4
+             MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+half(half(outp.Height)));
+             LineTo(inp.x,inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y);
+              end;
+            if outp.level+1  = inp.level  then
+             begin                             //3/4
+             MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+3*forth(outp.Height));
+             LineTo(inp.x,inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y);
+              end;
+           end;
         end;
        end;
    end

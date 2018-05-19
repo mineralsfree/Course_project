@@ -49,11 +49,13 @@ type
   private
     { Private declarations }
   public
+
     { Public declarations }
   end;
 var
 increment:Integer;
 k:Integer;
+  IfState: TIfstates;
   MaxInlineChars:integer = 30;
   Maxlines:integer = 5;
   FieldLeft:Integer = 0;
@@ -69,7 +71,7 @@ k:Integer;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
-  IfState: TIfstates;
+
   IsRight,Selected,isUp:Boolean;
   Kek: TKek;
   Rect: TRect;
@@ -399,7 +401,7 @@ begin
 Kek.ScrollBox1.width:=Kek.ScrollBox1.width+500;
 Kek.pb1.width:=Kek.pb1.width+500;
 end;
-  DrawBlocks(pb1,FigureHead,maxX,maxY);
+  DrawBlocks(pb1,FigureHead,maxX,maxY,IfState);
 if Selected then
   begin
   DrawDirectArrows(pb1,ClickFigure,IsRight,ifState );
