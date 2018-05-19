@@ -65,7 +65,7 @@ k:Integer;
   RectMinHeight:Integer = 100;
   offset:Integer = 75;
   startX:Integer = 20;
-  startY:Integer = 500;
+  startY:Integer = 20;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;

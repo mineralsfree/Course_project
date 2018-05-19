@@ -48,12 +48,13 @@ object Kek: TKek
     end
     object lbl1: TLabel
       Left = 0
-      Top = -1322
+      Top = 606
       Width = 963
       Height = 13
-      Align = alTop
+      Align = alBottom
       Caption = 'lbl1'
       ExplicitLeft = 950
+      ExplicitTop = -1322
       ExplicitWidth = 1928
     end
     object mmoInput: TMemo

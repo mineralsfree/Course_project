@@ -24,7 +24,7 @@ var
   ratio:real=1.5;
   offset:Integer = 75;
   startX:Integer = 50;
-  startY:Integer = 500;
+  startY:Integer = 20;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
