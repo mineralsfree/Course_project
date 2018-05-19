@@ -4,29 +4,18 @@ interface
 
 
 uses System.SysUtils,Vcl.Graphics,Vcl.ExtCtrls,Types_const;
+function aHead(head: PFigList;lol:TFigureInfo):boolean;
+procedure DeleteBlock(head: PFigList; P:TFigureInfo);
  function Levelwidth(head:PFigList; lvl:integer):Integer;
 procedure SetLevelWidth(var head:PFigList; lvl,width,increment:Integer);
   procedure CreateNode(head:PFigList; points:TFigureInfo; LRec:TFigureInfo);
   function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFigureInfo;
   procedure createFigureHead(var head:PFigList);
 procedure insertFigure({pb1:TPaintBox;}head:PFigList; points:TFigureInfo;LRec:TFigureInfo);
-  function GetY2(const head:PFigList):Integer;
   function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
+   function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
   procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean);
 implementation
-function GetY2(const head:PFigList):Integer;
-var temp:PFigList;
-begin
-  temp:=head;
-  if   temp^.Adr<> nil then
-  begin
-  while temp^.Adr<> nil do
-  temp:=temp^.Adr;
-  Result:=temp.Info.y+temp.Info.Height;
-  end
-  else
-  result:=80;
-end;
 procedure createFigureHead(var head:PFigList);
 begin
   new(head);
@@ -39,6 +28,21 @@ begin
   head.R:=nil;
   head.Info.FigType:=TaskFig;
 end;
+ function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
+ var temp:PFigList;
+  begin
+  Result:=nil;
+  temp:=head;
+  while temp<> nil do
+    begin
+      if temp.R<>nil then
+      begin
+        Result:=GetParentAdr(temp.R,P);
+      end;
+    if (temp^.Adr = P) then result:=temp;
+      temp:=temp^.Adr;
+    end;
+  end;
  function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
   var temp:PFigList;
   begin
@@ -56,27 +60,32 @@ end;
   end;
  function Levelwidth(head:PFigList; lvl:integer):Integer;
  var temp,temphead:PFigList;
+ //var str:
  begin
- result:=0;
-
+ //result:=RectMinWidth;
+ with TBitmap.Create do
+ begin
      temp:=head;
-   if (head.Info.level = lvl) and (head.Info.width>Result) then
-      Result:=head.info.width;
+   if (head.Info.level = lvl) and (Canvas.TextWidth(head.Info.Txt)>Result) then
+      Result:=Canvas.TextWidth(head.Info.Txt);
    while (temp^.Adr<>nil)  do
    begin
-     temp:=temp^.Adr;
-   if (temp.Info.level = lvl) and (temp.Info.width>Result) then
-      Result:=temp.info.width;
+
+   if (temp.Info.level = lvl) and (Canvas.TextWidth(temp.Info.Txt)>Result) then
+      Result:=Canvas.TextWidth(temp.Info.Txt);
       if temp.R<>nil  then
       begin
       temphead:=temp.R;
-      if (temphead.Info.level = lvl) and (temphead.Info.width>Result) then
-        Result:=temphead.info.width;
+      if (temphead.Info.level = lvl) and (Canvas.TextWidth(temphead.Info.Txt)>Result) then
+        Result:=Canvas.TextWidth(temphead.Info.Txt);
       Result:=Levelwidth(temphead,lvl);
       end;
+      temp:=temp^.Adr;
    end;
    if (Result = 0) and (temp.Info.level = lvl) then
-     result:=rectMinWidth;
+    // result:=rectMinWidth;
+    Free;
+    end;
 
  end;
 procedure insertFigure(head:PFigList; points:TFigureInfo;LRec:TFigureInfo);
@@ -141,21 +150,21 @@ begin
 
     Result.x:=-1;
 end;
+function aHead(head: PFigList;lol:TFigureInfo):boolean;
+begin
+result:= false;
+  if (head.Info.x = lol.x)  and (head.info.y = lol.y) then
+  result:=true;
+end;
 procedure SetLevelWidth(var head:PFigList; lvl,width,increment:Integer);
 var temp,temphead:PFigList;
 var isRight:boolean;
 var max:integer;
 begin
-    if width <>  Levelwidth(head,lvl) then
     begin
      temp:=head;
-     if head.Info.level = lvl then
-        head.info.width:=width;
-     if head.Info.level > lvl  then
-        head.info.x:=head.info.x+increment;
-     while (temp^.Adr<>nil)  do
+     while (temp<>nil)  do
      begin
-       temp:=temp^.Adr;
      //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
         if  temp.info.level=lvl then
         temp.info.width:=width;
@@ -163,17 +172,24 @@ begin
         head.info.x:=head.info.x+increment;
         if temp.R<>nil  then
         begin
-        temphead:=temp.R;
-        if  temphead.info.level=lvl then
-        temphead.info.width:=width;
-        if head.Info.level > lvl  then
-        head.info.x:=head.info.x+increment;
-        SetLevelWidth(temphead,lvl,width,increment);
+          temphead:=temp.R;
+          if  temphead.info.level=lvl then
+           temphead.info.width:=width;
+          if head.Info.level > lvl  then
+           head.info.x:=head.info.x+increment;
+          SetLevelWidth(temphead,lvl,width,increment);
         end;
+        temp:=temp^.Adr;
      end;
     end;
 end;
 
+procedure DeleteBlock(head: PFigList; P:TFigureInfo);
+var temp: PFigList;
+begin
+ temp:=GetParentAdr(head,GetAdr(head,P));
+ temp.adr:=nil;
+end;
 procedure CreateNode(head: PFigList;Points:TFigureInfo; LRec:TFigureInfo);
 var LRecAdr,temphead,temp:PFigList;
 

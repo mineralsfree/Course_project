@@ -37,17 +37,13 @@ object Kek: TKek
     OnMouseWheelUp = ScrollBox1MouseWheelUp
     object pb1: TPaintBox
       Left = 0
-      Top = 0
-      Width = 980
-      Height = 593
-      Align = alClient
+      Top = -2
+      Width = 929
+      Height = 403
       Color = clBtnFace
       ParentColor = False
       OnMouseDown = pb1MouseDown
       OnPaint = pb1Paint
-      ExplicitTop = -2
-      ExplicitWidth = 656
-      ExplicitHeight = 403
     end
     object lbl1: TLabel
       Left = 0
@@ -64,17 +60,17 @@ object Kek: TKek
       Width = 44
       Height = 13
       Caption = 'notalabel'
+      Visible = False
     end
     object mmoInput: TMemo
       Left = 439
       Top = 152
-      Width = 185
+      Width = 100
       Height = 89
       Lines.Strings = (
         'mmo1')
       TabOrder = 0
       Visible = False
-      OnChange = mmoInputChange
     end
   end
   object tlb1: TToolBar
@@ -135,7 +131,7 @@ object Kek: TKek
     Width = 64
     Left = 32
     Bitmap = {
-      494C010103001400300040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101030014003C0040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000000100004000000001002000000000000000
       010000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF

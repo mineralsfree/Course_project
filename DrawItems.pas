@@ -53,13 +53,10 @@ var
   Rectan:Trect;
   border:Integer;
   oldStyle:TBrushStyle;
-
 begin
 oldStyle:=pb1.Canvas.Brush.Style;
 pb1.Canvas.Brush.Style:=bsClear;
-border:=pb1.Canvas.Pen.Width;
-
-
+border:=0;
 case p.FigType of
   TaskFig:
   Rectan:=
@@ -88,6 +85,12 @@ end;
  Result:=False;
    if p.Txt= ''  then
    result:=True;
+ end;
+
+ procedure HorizontalAdjust(head: PFigList; NewSize:PFigList);
+ var temp:PFigList;
+ begin
+
  end;
  procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
  var prev:TColor;
@@ -162,13 +165,17 @@ begin
   with pb1.Canvas do
   begin
   drawEllipse(pb1,head.Info.x ,head.Info.y,Head.info.width,Head.Info.Height);
-  drawEllipse(pb1,p.x ,p.y,100,50);
+  //drawEllipse(pb1,p.x ,p.y,100,50);
   p.Txt:=strBegin;
   TextW:=pb1.Canvas.TextWidth(strBegin);
   TextH:=pb1.Canvas.TextHeight(strBegin);
-  TX:=p.x+half(p.width)-half(TextW);
-  TY:=half(p.Height)-half(TextH)+p.y;
+  TX:=head.Info.x+half(Head.info.width)-half(TextW);
+  TY:=head.Info.y+half(Head.Info.Height)-half(TextH);
+  pb1.Canvas.Brush.Style:=bsClear;
   TextOut(TX,TY,strBegin);
+  pb1.Canvas.Brush.Style:=bsSolid;
+//  p.FigType:=TaskFig;
+ // InsertTXT(pb1,p);
   end;
 end;
 
@@ -187,6 +194,7 @@ prev:=pb1.Canvas.Pen.Color;
   end;
   pb1.Canvas.Pen.Color:=prev;
 end;
+
 procedure DrawWhile(pb1:TPaintBox; p:TFigureInfo; color:TColor);
 var prev:TColor;
 begin
@@ -204,6 +212,7 @@ prev:=pb1.Canvas.Pen.Color;
   end;
   pb1.Canvas.Pen.Color:=prev;
 end;
+
 procedure DrawFigure(pb1:TPaintBox; p:TFigureInfo; color:TColor);
 begin
   case p.FigType of
@@ -223,6 +232,7 @@ begin
   end;
 
 end;
+
 procedure DrawBlocks(pb1:TPaintBox; head:PFigList;var maxX,maxY:integer);
 var temp,temphead:PFigList;
 var isRight:boolean;
@@ -264,10 +274,9 @@ begin
       DrawBlocks(pb1,temp.R,maxX,maxY);
       isRight:=false;
       end;
-
    end;
-
 end;
+
 procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean);
 var x,y:Integer;
 var arrow:TArrowInfo;
