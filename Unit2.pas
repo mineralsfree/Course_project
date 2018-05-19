@@ -26,7 +26,6 @@ type
     btnWhile: TToolButton;
     lbl1: TLabel;
     mmoInput: TMemo;
-    notalabel: TLabel;
     ToolButton1: TToolButton;
     procedure getCharParams(var Chrwidth, Chrheight:Integer);
     procedure FormCreate(Sender: TObject);
@@ -41,9 +40,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btnWhileClick(Sender: TObject);
-    procedure InputMode(x,y,chrwidth,chrheight:Integer);
     procedure ToolButton1Click(Sender: TObject);
-
+    procedure inptext(pb1:TPaintBox; pinf:TFigureInfo);
 
 
   private
@@ -67,7 +65,7 @@ k:Integer;
   RectMinHeight:Integer = 100;
   offset:Integer = 75;
   startX:Integer = 20;
-  startY:Integer = 20;
+  startY:Integer = 500;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
@@ -96,10 +94,50 @@ createFigureHead(FigureHead);
 ClickFigure:=FigureHead.Info;
 clrscreen(pb1);
 Selected:=False;
-notalabel.Visible:=False;
 IfState:=RUP;
+//scrollbox1.VertScrollBar.Position:=startY -20;
+scrollbox1.VertScrollBar.Position:=0;
+end;
+procedure TKek.getCharParams(var Chrwidth, Chrheight:Integer);
+var DC: HDC;
+SaveFont: HFONT;
+TTM: TTextMetric;
+begin
+DC := GetDC(mmoInput.Handle);
+if (DC <> 0) then
+  begin
+  SaveFont := SelectObject(DC,mmoInput.Font.Handle);
+  if (GetTextMetrics(DC,TTM)) then
+    begin
+    ChrWidth:=TTM.tmAveCharWidth+TTM.tmExternalLeading;
+    Chrheight:=TTM.tmHeight;
+    end;
+  SelectObject(DC,SaveFont);
+  ReleaseDC(mmoinput.handle,DC);
+  end;
 end;
 
+procedure TKek.inptext(pb1:TPaintBox; pinf:TFigureInfo);
+var p:PFigList;
+  var lvlwidth:integer;
+ChrWidth:integer;
+var i,maxStrLength:Integer;
+Chrheight,CurrStrWidth:Integer;
+begin
+getCharParams(ChrWidth,Chrheight);
+p:=GetAdr(figurehead,pinf);
+   mmoInput.Left:=pb1.left;
+   mmoInput.Top:=pb1.Top;
+   mmoInput.Width:=MaxInlineChars* ChrWidth;
+   mmoInput.Height:=RectMinWidth;
+   mmoInput.Visible:=True;
+   mmoInput.Lines.Clear;
+   mmoInput.SelStart:=0;
+   //mmoInput.Lines.Add(p.Info.Txt);
+   mmoInput.MaxLength:=30;
+
+
+end;
 procedure TKek.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var ClickAdr:PFigList;
@@ -113,15 +151,15 @@ begin
     DeleteBlock(Figurehead, Clickfigure);
 
 
-   if key = 40 then  //  showmessage('down');
+  { if key = 40 then  //  showmessage('down');
   if ClickAdr.Adr<>nil then ClickFigure:=ClickAdr.Adr.Info;
 if Key = 39 then  //   showmessage('left');
- if ClickAdr.R<>nil then
+if ClickAdr.R<>nil then
     try
     ClickFigure:=ClickAdr.R.Info;
    except
 
-   end;
+   end;     }
 
  if key = 38 then  //  showmessage('up');
   begin
@@ -149,6 +187,13 @@ if Key = 39 then  //   showmessage('left');
    end;
 
   end;
+end;
+
+
+
+if selected and (key = 13) then
+begin
+Inptext(pb1,ClickFigure);
 end;
 //ShowMessage(IntToStr(key));
 // if key = 37 then  //  showmessage('left');
@@ -179,73 +224,29 @@ if Key = 39 then  //   showmessage('left');
 
 
 end;
-procedure TKek.InputMode(x,y,chrwidth,chrheight:Integer);
- var prex:TFigureInfo;
-begin
-  prex:=GetClickFig(x,y,FigureHead,Selected);
-   if (ClickFigure.x = prex.x) and (ClickFigure.y = prex.y) and not(ahead(FigureHead,prex)) then
-   begin
-   mmoInput.Left:=prex.x;
-   mmoInput.Top:=prex.y;
-   mmoInput.Width:=MaxInlineChars* ChrWidth;
-   mmoInput.Height:=Maxlines * ChrHeight;
-   mmoInput.Visible:=True;
-   mmoInput.Lines.Clear;
-   mmoInput.SelStart:=0;
-   mmoInput.Lines.Add(prex.Txt);
-   end;
-end;
-procedure TKek.getCharParams(var Chrwidth, Chrheight:Integer);
-var DC: HDC;
-SaveFont: HFONT;
-TTM: TTextMetric;
-begin
-DC := GetDC(mmoInput.Handle);
-if (DC <> 0) then
-  begin
-  SaveFont := SelectObject(DC,mmoInput.Font.Handle);
-  if (GetTextMetrics(DC,TTM)) then
-    begin
-    ChrWidth:=TTM.tmAveCharWidth+TTM.tmExternalLeading;
-    Chrheight:=TTM.tmHeight;
-    end;
-  SelectObject(DC,SaveFont);
-  ReleaseDC(mmoinput.handle,DC);
-  end;
-end;
+
 procedure TKek.pb1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var x0,y0:Integer;
 var lol:PFigList;
  var sel,ifst,maxStr:string;
  var prex:TFigureInfo;
-  var lvlwidth:integer;
-ChrWidth:integer;
-var i,maxStrLength:Integer;
-Chrheight,CurrStrWidth:Integer;
+
 begin
-getCharParams(ChrWidth,Chrheight);
+
 if Selected  then
   begin
   // ShowMessage('lol');
   prex:=GetClickFig(x,y,FigureHead,Selected);
    if (ClickFigure.x = prex.x) and (ClickFigure.y = prex.y)  then
    begin
-   //ShowMessage('KEK');
-   mmoInput.Left:=prex.x;
-   mmoInput.Top:=prex.y;
-   mmoInput.Width:=MaxInlineChars* ChrWidth;
-   mmoInput.Height:=Maxlines * ChrHeight;
-   mmoInput.Visible:=True;
-   mmoInput.Lines.Clear;
-   mmoInput.SelStart:=0;
-   mmoInput.Lines.Add(prex.Txt);
+
     Exit;
    end;
   end;
 
-if (mmoInput.Visible = True) then
-  begin
+//if (mmoInput.Visible = True) then
+{  begin
   prex:=GetClickFig(mmoInput.left,mmoInput.top,FigureHead,Selected);
    if (prex.x = -1) then
     begin
@@ -281,11 +282,11 @@ if (mmoInput.Visible = True) then
     end
     else
       lol.Info.Height:=RectMinHeight;
-     // ShowMessage(IntToStr((mmoInput.Lines.Count+1)*Chrheight));
-    InsertTXT(pb1,prex);
+     // ShowMessage(IntToStr((mmoInput.Lines.Count+1)*Chrheight));  }
+   // InsertTXT(pb1,prex);
         // ShowMessage(IntToStr(increment));
 
-    if RectMinWidth + increment>lvlwidth then
+    {if RectMinWidth + increment>lvlwidth then
     //showmessage(IntToStr(Levelwidth(FigureHead,lol.Info.level)));
     SetLevelWidth(FigureHead,lol.Info.level,lol.Info.width,increment)
     else
@@ -293,14 +294,20 @@ if (mmoInput.Visible = True) then
     increment:=0;
     mmoInput.Visible:= False;
     end;
-  end;
+  end;}
+   if  (mmoInput.Visible) then
+ begin
+   GetAdr(FigureHead,ClickFigure).Info.Txt:=mmoInput.Text;
+   mmoInput.Visible:=False;
+ end;
   case IfState of
       RUP: ifst:='RUP';
       RDOWN: ifst:='Rdown';
       Down: ifst:='down';
   end;
 ClickFigure:=GetClickFig(x,y,FigureHead,Selected);
-sel:= 'Not selected';
+
+
 if selected then
 sel:= 'selected' else sel:='Not selected';
   lbl1.Caption:=
@@ -314,18 +321,19 @@ sel:= 'selected' else sel:='Not selected';
     +'Ifstate: '+ ifst +#10#13
     +'row: '+ IntToStr(ClickFigure.Row) +#10#13
     +'maxX: ' + IntToStr(maxX) + #10#13
-    +'Memo1.CaretPos.y: ' + IntToStr(mmoInput.CaretPos.y) + #10#13
-    +'Memo1.CaretPos.X: ' + IntToStr(mmoInput.CaretPos.X*ChrWidth) + #10#13 ;
+    +'Memo1.CaretPos.y: ' + IntToStr(mmoInput.CaretPos.y) + #10#13  ;
+ //   +'Memo1.CaretPos.X: ' + IntToStr(mmoInput.CaretPos.X*ChrWidth) + #10#13 ;
    // +'level MaxWidth: '  + IntToStr(Levelwidth(FigureHead,lol.info.level));
 //  +'TXT '+ ClickFigure.Txt+#10#13;
-  mmoInput.Visible:= False;
+ //  mmoInput.Visible:= False;
   pb1.Repaint;
- //ShowMessage(IntToStr(Levelwidth(FigureHead, 1)));
   end;
 
 procedure ButtonReaction(Figure: TFigType);
 var p:TFigureInfo;
 var prex:PFigList;
+tempP:TFigureInfo;
+var dRow:integer;
 begin
 prex:=GetAdr(FigureHead,ClickFigure);
   if Selected  then
@@ -333,17 +341,19 @@ prex:=GetAdr(FigureHead,ClickFigure);
   p.height:=rectMinHeight;
   p.FigType:=Figure;
   p.Txt:='';
-  if (ClickFigure.FigType = IfFig) and ((IfState = RUP) or (IfState = RDOWN))then
+  if (ClickFigure.FigType = IfFig) and ((IfState = RUP) or (IfState = RDOWN)) then
     begin
     case IfState of
     RUP:
       begin
-      p.x:=ClickFigure.x +ClickFigure.width+ 2*offset +RectMinWidth;   //   Костыли
-      p.y:=ClickFigure.y;
-      p.Row:=ClickFigure.row;
+      p.x:=prex.Info.x +prex.Info.width+ offset;   //   Костыли
+      p.y:=prex.Info.y;
+      p.Row:=prex.Info.row;
       p.width:=RectMinWidth;
-      p.level:=ClickFigure.level+2;
-      CreateNode(FigureHead,p,ClickFigure);
+      p.level:=prex.Info.level+1;
+       //if p.level>1  then
+      //SetAdjustment(FigureHead,p.level,p.Row+1);
+      CreateNode(FigureHead,p,prex.Info);
       end;
       RDOWN:
       begin
@@ -352,13 +362,27 @@ prex:=GetAdr(FigureHead,ClickFigure);
       p.Row:=ClickFigure.row+1;
       p.width:=RectMinWidth;
       p.level:=ClickFigure.level+1;
+       if p.level>1 then
+      SetAdjustment(FigureHead,p.level,p.Row);
       CreateLeft(FigureHead,p,ClickFigure);
       end;
     end;
     Kek.pb1.repaint;
     exit;
     end;
-  if IsRight then
+    if (ClickFigure.FigType = WhileFig) and IsRight then
+    begin
+      p.x:=ClickFigure.x +ClickFigure.width+ offset;
+      p.y:=ClickFigure.y+ClickFigure.Height + offset;
+      p.Row:=ClickFigure.row+1;
+      p.width:=RectMinWidth;
+      p.level:=ClickFigure.level+1;
+      if p.level>1 then
+      SetAdjustment(FigureHead,p.level,p.Row);
+      CreateLeft(FigureHead,p,ClickFigure);
+      exit;
+    end;
+  if IsRight and (prex.R = nil) then
     begin
     p.x:=ClickFigure.x+ClickFigure.width+offset;
     p.y:=ClickFigure.y+half(ClickFigure.Height)-half(RectMinHeight);
@@ -375,13 +399,14 @@ prex:=GetAdr(FigureHead,ClickFigure);
       //if prex<>FigureHead then
       //p.y:= maxY + offset+Clickfigure.Height
       //else
-      p.y:=ClickFigure.y+ClickFigure.Height+offset;
       p.width:=ClickFigure.width;
       p.level:=ClickFigure.level;
-      p.Row:=ClickFigure.row+1;
+      p.y:=GetAdjust(FigureHead,p.level,ClickFigure,dRow);
+      p.Row:= GetRow(FigureHead,p.level,p);
+       if p.level>1 then
+      SetAdjustment(FigureHead,p.level,p.Row);
       insertFigure(FigureHead,p,ClickFigure);
-    if p.level>1 then
-    SetAdjustment(FigureHead,p.level,p.Row);
+
     end;
 
   Kek.pb1.Repaint;

@@ -31,15 +31,16 @@ object Kek: TKek
     Height = 610
     VertScrollBar.ButtonSize = 300
     VertScrollBar.Increment = 24
+    VertScrollBar.Position = 1322
     Align = alClient
     TabOrder = 1
     OnMouseWheelDown = ScrollBox1MouseWheelDown
     OnMouseWheelUp = ScrollBox1MouseWheelUp
     object pb1: TPaintBox
       Left = 0
-      Top = -2
+      Top = -1324
       Width = 929
-      Height = 403
+      Height = 1930
       Color = clBtnFace
       ParentColor = False
       OnMouseDown = pb1MouseDown
@@ -47,24 +48,17 @@ object Kek: TKek
     end
     object lbl1: TLabel
       Left = 0
-      Top = 593
-      Width = 980
+      Top = -1322
+      Width = 963
       Height = 13
-      Align = alBottom
+      Align = alTop
       Caption = 'lbl1'
-      ExplicitWidth = 16
-    end
-    object notalabel: TLabel
-      Left = 560
-      Top = 336
-      Width = 44
-      Height = 13
-      Caption = 'notalabel'
-      Visible = False
+      ExplicitLeft = 950
+      ExplicitWidth = 1928
     end
     object mmoInput: TMemo
       Left = 439
-      Top = 152
+      Top = -1170
       Width = 100
       Height = 89
       Lines.Strings = (

@@ -3,7 +3,7 @@ unit Lists;
 interface
 
 
-uses System.SysUtils,Vcl.Graphics,Vcl.ExtCtrls,Types_const;
+uses System.SysUtils,Vcl.Graphics,Vcl.ExtCtrls,vcl.Dialogs,Types_const;
 function aHead(head: PFigList;lol:TFigureInfo):boolean;
 procedure DeleteBlock(head: PFigList; P:TFigureInfo);
  function Levelwidth(head:PFigList; lvl:integer):Integer;
@@ -16,6 +16,9 @@ procedure insertFigure({pb1:TPaintBox;}head:PFigList; points:TFigureInfo;LRec:TF
    function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
     procedure createleft(head: PFigList;Points:TFigureInfo; LRec:TFigureInfo);
   procedure SetAdjustment(const head:PFigList; lvl,row:Integer);
+    function LeftBorn(const head:PFigList;p:TFigureInfo):boolean;
+function GetAdjust(head:PFigList;lvl:integer;p:TFigureInfo;var d:Integer):integer;
+function GetRow(head:PFigList;lvl:integer;p:TFigureInfo):integer;
 
 implementation
 procedure createFigureHead(var head:PFigList);
@@ -31,6 +34,97 @@ begin
   head.Info.FigType:=TaskFig;
   head.Info.Row:=0;
 end;
+
+function GetAdjust(head:PFigList;lvl:integer;p:TFigureInfo;var d:Integer):integer;
+var max:Integer;
+  function GetAdj(head:PFigList;lvl:integer; var max,d:integer):integer;
+  var temp,temphead:Pfiglist;
+  begin
+
+  temp:=head;
+       while (temp<>nil)  do
+       begin
+       //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+         if (temp.Info.level>lvl) and  (temp.Info.y>max )then
+         begin
+         max:=temp.Info.y+temp.Info.Height;
+         d:=temp.info.row;
+
+         end;
+
+          if temp.R<>nil  then
+          begin
+            result:=GetAdj(temp.R,lvl,max,d);
+          end;
+          if temp.L<>nil  then
+          begin
+            result:=GetAdj(temp.L,lvl,max,d);
+          end;
+          temp:=temp^.Adr;
+
+       end;
+  result:=max;
+  end;
+begin
+//d:=1;
+max:=p.y+p.Height;
+result:=GetAdj(head,lvl,max,d)+offset;
+end;
+function eqInfo(a,b:TFigureInfo):Boolean;
+begin
+result:= False;
+if (a.x = b.x) and (a.y = b.y) then
+result:=True;
+
+
+end;
+function GetRow(head:PFigList;lvl:integer;p:TFigureInfo):integer;
+var max:Integer;
+  function GetR(head:PFigList;lvl:integer; var max:Integer):integer;
+  var temp,temphead:Pfiglist;
+  begin
+
+  temp:=head;
+       while (temp<>nil)  do
+       begin
+        //if not(eqInfo(p,temp.Info)) then
+         begin
+       //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+         if (temp.Info.level>=lvl) and  (temp.Info.Row>max) and not(eqInfo(p,temp.Info))then
+         begin
+         max:=temp.Info.Row
+         end;
+
+          if temp.R<>nil  then
+          begin
+            result:=GetR(temp.R,lvl,max);
+          end;
+          if temp.L<>nil  then
+          begin
+            result:=GetR(temp.L,lvl,max);
+          end;
+          temp:=temp^.Adr;
+
+         end;
+       end;
+  result:=max;
+  end;
+begin
+max:=0;
+result:=GetR(head,lvl,max)+1;
+end;
+
+procedure JustAdjust( head:PFigList);
+var temp,temphead:PFigList;
+begin
+temp:=head;
+ while (temp<>nil)  do
+ begin
+   temp.info.y:=temp.info.y + temp.Info.Height + offset;
+   temp.Info.Row:=temp.Info.Row + 1;
+   temp:=temp^.Adr;
+ end;
+end;
 procedure SetAdjustment(const head:PFigList; lvl,row:Integer);
 var temp,temphead:PFigList;
 begin
@@ -38,7 +132,7 @@ begin
      while (temp<>nil)  do
      begin
      //TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
-        if  (temp.info.level < lvl) and (temp.Info.row>=row) then
+        if {  (temp.info.level < lvl) and }(row <= temp.Info.row) then
         begin
         temp.info.y:=temp.info.y + temp.Info.Height + offset;
         temp.Info.Row:=temp.Info.Row + 1;
@@ -46,12 +140,16 @@ begin
 
         if temp.R<>nil  then
         begin
-          temphead:=temp.R;
-          SetAdjustment(temphead,lvl,row);
+          SetAdjustment(temp.R,lvl,row);
+        end;
+        if temp.L<>nil  then
+        begin
+
+          SetAdjustment(temp.L,lvl,row);
+         // JustAdjust(temp.L);
         end;
         temp:=temp^.Adr;
      end;
-
 end;
  function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
  var temp:PFigList;
@@ -64,6 +162,10 @@ end;
       begin
         Result:=GetParentAdr(temp.R,P);
       end;
+      if temp.L<>nil then
+      begin
+        Result:=GetParentAdr(temp.L,P);
+      end;
     if (temp^.Adr = P) then result:=temp;
       temp:=temp^.Adr;
     end;
@@ -71,7 +173,6 @@ end;
  function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
   var temp:PFigList;
   begin
-  Result:=nil;
   temp:=head;
   while temp<> nil do
     begin
@@ -79,13 +180,20 @@ end;
       begin
         Result:=Getadr(temp.R,info);
       end;
-    if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then result:=temp;
+       if temp.L<>nil then
+      begin
+        Result:=Getadr(temp.L,info);
+      end;
+    if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
+    begin
+    result:=temp;
+    exit;
+    end;
       temp:=temp^.Adr;
     end;
   end;
  function Levelwidth(head:PFigList; lvl:integer):Integer;
  var temp,temphead:PFigList;
- //var str:
  begin
  //result:=RectMinWidth;
  with TBitmap.Create do
@@ -105,13 +213,19 @@ end;
         Result:=Canvas.TextWidth(temphead.Info.Txt);
       Result:=Levelwidth(temphead,lvl);
       end;
+       if temp.L<>nil  then
+      begin
+      temphead:=temp.L;
+      if (temphead.Info.level = lvl) and (Canvas.TextWidth(temphead.Info.Txt)>Result) then
+      Result:=Canvas.TextWidth(temphead.Info.Txt);
+      Result:=Levelwidth(temphead,lvl);
+      end;
       temp:=temp^.Adr;
    end;
    if (Result = 0) and (temp.Info.level = lvl) then
     // result:=rectMinWidth;
     Free;
     end;
-
  end;
 procedure insertFigure(head:PFigList; points:TFigureInfo;LRec:TFigureInfo);
 var LRecAdr,temp,temp2:PFigList;
@@ -128,7 +242,7 @@ begin
   temp^.Info.Txt:='';
   end
   else
-  begin
+ { begin
     temp2:=LRecAdr^.Adr;
       while temp2 <>nil do
     begin
@@ -137,14 +251,13 @@ begin
     end;
   temp2:=LRecAdr^.Adr;
   LRecAdr^.Adr:=nil;
-
   New(LRecAdr^.Adr);
   temp:=LRecAdr^.Adr;
   temp^.L:=nil;
   temp^.R:=nil;
   temp^.Info:=points;
   temp^.Adr:=temp2;
-  end;
+  end;      }
 end;
 function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFigureInfo;
   function GClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFigureInfo;
@@ -153,9 +266,9 @@ function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFi
     selected:=False;
       temp:=head;
        if (x > temp.Info.x) and
-         (x < temp.Info.x+temp.Info.width) and
-         (y > temp.Info.y) and
-         (y < temp.Info.y + temp.Info.Height)
+       (x < temp.Info.x+temp.Info.width) and
+       (y > temp.Info.y) and
+       (y < temp.Info.y + temp.Info.Height)
       then
          begin
           Result:=temp.Info;
@@ -169,6 +282,11 @@ function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFi
         Result:=GClickFig(x,y,temp.R,selected);
         if selected then exit;
         end;
+        if temp.L<>nil then
+        begin
+        Result:=GClickFig(x,y,temp.L,selected);
+        if selected then exit;
+        end;
         if (x > temp.Info.x) and
            (x < temp.Info.x+temp.Info.width) and
            (y > temp.Info.y) and
@@ -180,12 +298,9 @@ function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFi
             Exit;
            end
         else temp:=temp^.Adr;
-
       end;
-
       if selected then
       Exit;
-
       Result.x:=-1;
   end;
   begin
@@ -204,7 +319,6 @@ var temp,temphead:PFigList;
 var isRight:boolean;
 var max:integer;
 begin
-    begin
      temp:=head;
      while (temp<>nil)  do
      begin
@@ -224,7 +338,6 @@ begin
         end;
         temp:=temp^.Adr;
      end;
-    end;
 end;
 
 procedure DeleteBlock(head: PFigList; P:TFigureInfo);
@@ -248,6 +361,43 @@ var LRecAdr,temphead,temp:PFigList;
     temp^.Info:=points;
     temp^.Info.Txt:='';
     end;
+  end;
+
+  function LeftBorn(const head:PFigList;p:TFigureInfo):boolean;
+
+  var exitbool:boolean;
+    function LeftB(const head:PFigList;p:TFigureInfo;var ex:Boolean):boolean;
+     var temp,temp2:PFigList;
+    begin
+
+      if not(ex) then
+      begin
+       temp2:=GetAdr(head,p);
+       //showmessage(IntToStr(temp2.Info.x));
+      temp:=head;
+      while temp<> nil do
+        begin
+          if temp.R<>nil then
+          begin
+            Result:=LeftB(temp.R,p,ex);
+          end;
+          if temp.L<>nil then
+          begin
+            Result:=LeftB(temp.L,p,ex);
+          end;
+        if (temp^.r = temp2) then
+        begin
+         result:=True;
+         ex:=True;
+          Exit;
+        end;
+          temp:=temp^.Adr;
+        end;
+      end;
+    end;
+  begin
+  exitbool:=False;
+   LeftB(head,p,exitbool);
   end;
   procedure createleft(head: PFigList;Points:TFigureInfo; LRec:TFigureInfo);
 var LRecAdr,temphead,temp:PFigList;

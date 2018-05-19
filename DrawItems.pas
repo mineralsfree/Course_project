@@ -24,7 +24,7 @@ var
   ratio:real=1.5;
   offset:Integer = 75;
   startX:Integer = 50;
-  startY:Integer = 20;
+  startY:Integer = 500;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
@@ -56,29 +56,33 @@ var
   border:Integer;
   oldStyle:TBrushStyle;
 begin
+cap:=(p.Txt);
 oldStyle:=pb1.Canvas.Brush.Style;
-pb1.Canvas.Brush.Style:=bsClear;
-border:=0;
+pb1.Canvas.Brush.Style:={bsClear;}bsSolid;
+border:=2;
+TextW:=pb1.Canvas.TextWidth(cap);
+TextH:=pb1.Canvas.TextHeight(cap);
 case p.FigType of
   TaskFig:
   Rectan:=
   Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
-  IfFig:
+  IfFig: //SuperHard Formula
   Rectan:=
-  Rect(p.x+third(p.width)+border,p.y+third(p.Height)+border,p.x + 2*third(p.width)-2*border,p.y + 2*third(p.Height)-2*border);
-  WhileFig: ;
+  Rect(p.x+ round(p.width*(TextH/p.Height)),p.y+half(p.height-textH),p.x + p.width-round(p.width*(TextH/p.Height)),p.y+half(p.height-textH)+TextH);
+  WhileFig:  Rectan:=
+  Rect(p.x+ round(p.width*(TextH/p.Height)),p.y+half(p.height-textH),p.x + p.width-round(p.width*(TextH/p.Height)),p.y+half(p.height-textH)+TextH);
   StartFig: ;
   untilFig: ;
 end;
 //Rectan:=Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
-cap:=(p.Txt);
+
 //cap:=TextUtil(cap);
-TextW:=pb1.Canvas.TextWidth(cap);
-TextH:=pb1.Canvas.TextHeight(cap);
+
 TX:=half(p.width)-half(TextW)+p.x;
 TY:=half(p.Height)-half(TextH)+p.y;
-pb1.Canvas.Brush.Style:=bsClear;
+//pb1.Canvas.Brush.Color:=clRed;
 pb1.Canvas.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
+//pb1.Canvas.FillRect(rectan);
 pb1.Canvas.Brush.Style:=oldStyle;
 end;
 
@@ -197,6 +201,7 @@ prev:=pb1.Canvas.Pen.Color;
     LineTo(p.x ,p.y+half(p.Height));
     LineTo(p.x+half(p.width),p.y);
   end;
+  InsertTXT(pb1,p);
   pb1.Canvas.Pen.Color:=prev;
 end;
 
@@ -207,14 +212,15 @@ prev:=pb1.Canvas.Pen.Color;
   pb1.Canvas.Pen.Color:=color;
   with pb1.Canvas do
   begin
-    MoveTo(p.x+third(p.width),p.y);
-    LineTo(p.x+2*third(p.width),p.y);
+    MoveTo(p.x+forth(p.width),p.y);
+    LineTo(p.x+3*forth(p.width),p.y);
     LineTo(p.x+p.width,p.y + half(p.Height));
-    LineTo(p.x +2*third(p.width),p.y + p.Height);
-    LineTo(p.x +third(p.width),p.y + p.Height);
+    LineTo(p.x +3*forth(p.width),p.y + p.Height);
+    LineTo(p.x +forth(p.width),p.y + p.Height);
     LineTo(p.x ,p.y+half(p.Height));
-    LineTo(p.x+third(p.width),p.y);
+    LineTo(p.x+forth  (p.width),p.y);
   end;
+  InsertTXT(pb1,p);
   pb1.Canvas.Pen.Color:=prev;
 end;
 
@@ -234,6 +240,7 @@ begin
         begin
         drawWhile(pb1,p,color);
         end;
+
   end;
 
 end;
@@ -314,9 +321,11 @@ var predC: TColor;
 begin
 predC:=pb1.Canvas.Pen.Color;
 pb1.Canvas.Pen.Color:=clBlue;
-if p.FigType = IfFig then
+case p.FigType of
+  TaskFig: ;
+  IfFig:
   begin
-      case ifState of
+    case ifState of
         RUP:
       begin
         with pb1.Canvas do
@@ -327,7 +336,6 @@ if p.FigType = IfFig then
           LineTo(p.x+p.width+2*offset+Rectminwidth+half(RectMinWidth),p.y);
         end;
       end;
-
       RDOWN:
       begin
       with pb1.Canvas do
@@ -338,7 +346,6 @@ if p.FigType = IfFig then
         LineTo(PenPos.X ,penpos.y + offset);
       end;
       end;
-
       DOWN:
       begin
       arrow.Direction:=Vertical;
@@ -346,9 +353,26 @@ if p.FigType = IfFig then
       arrow.y:=p.y+p.Height;
       arrow.length:=offset;
        drawA(pb1,arrow,clBlue);
+      end
+  end;
+  end;
+{  WhileFig:
+  begin
+  with pb1.Canvas do
+      begin
+        MoveTo((p.width+p.x-half(half(p.width))),p.y+3*forth(p.Height));
+        LineTo(p.x+p.width,PenPos.y+forth(p.height));
+        LineTo(penpos.x+RectMinWidth,penpos.y);
+        LineTo(PenPos.X ,penpos.y + offset);
       end;
+  end;       }
+  StartFig: ;
+  untilFig: ;
+  RepeatFig: ;
+end;
+if p.FigType = IfFig then
+  begin
 
-    end;
    end
 else
   begin
@@ -392,20 +416,27 @@ end;
             end;
           IfFig:
            begin
-           if outp.level+2  = inp.level then
-             begin                             //3/4
+           if (outp.x < inp.x) and(outp.y =  inp.y)  then
+             begin                            //3/4
              MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+half(half(outp.Height)));
              LineTo(inp.x,inp.y-half(offset));
              LineTo(inp.x+half(inp.width),inp.y-half(offset));
              LineTo(inp.x+half(inp.width),inp.y);
               end;
-            if outp.level+1  = inp.level  then
+            if (outp.x < inp.x) and(outp.y < inp.y)  then
              begin                             //3/4
              MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+3*forth(outp.Height));
              LineTo(inp.x,inp.y-half(offset));
              LineTo(inp.x+half(inp.width),inp.y-half(offset));
              LineTo(inp.x+half(inp.width),inp.y);
               end;
+           end;
+           WhileFig:
+           begin
+            MoveTo((outp.width+outp.x -half(forth(outp.width))),outp.y+3*forth(outp.Height));
+             LineTo(inp.x,inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y);
            end;
         end;
        end;
