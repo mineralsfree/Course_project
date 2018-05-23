@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.164,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Lists.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.961,=C:\Users\MI\Documents\GitHub\Course_project\DrawItems.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.212,=C:\Users\MI\Documents\GitHub\Course_project\Types_const.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.002,=C:\Users\MI\Documents\GitHub\Course_project\AFXWIN.H</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.378,C:\Users\MI\Documents\GitHub\Course_project\AFXWIN.H=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.314,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.845,C:\Users\MI\Documents\GitHub\Course_project\gdi32.lib=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.584,=C:\Users\MI\Documents\GitHub\Course_project\gdi32.lib</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.525,C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Project2.dproj=C:\Users\nikita\Documents\GitHub\Course_project\Project2.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.245,=C:\Users\nikita\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2018.05.23 22:42:12.707,C:\Users\MI\Documents\GitHub\Course_project\DamkeEditor.dproj=C:\Users\MI\Documents\GitHub\Course_project\Project2.dproj</Transaction>
+  </Transactions>  <ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Unit2.pas"/>
+    <File Path="Unit2.dfm"/>
+    <File Path="Lists.pas"/>
+    <File Path="DrawItems.pas"/>
+    <File Path="Types_const.pas"/>
+  </ProjectSortOrder>
+</BorlandProject>
