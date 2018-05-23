@@ -52,9 +52,7 @@ object Kek: TKek
       Height = 13
       Align = alBottom
       Caption = 'lbl1'
-      ExplicitLeft = 950
-      ExplicitTop = -1322
-      ExplicitWidth = 1928
+      ExplicitWidth = 16
     end
     object mmoInput: TMemo
       Left = 439
@@ -121,6 +119,14 @@ object Kek: TKek
       end
       object Export1: TMenuItem
         Caption = 'Export'
+        object mniExportBmp: TMenuItem
+          Caption = 'BMP'
+          OnClick = mniExportBmpClick
+        end
+        object mniExportPNG: TMenuItem
+          Caption = 'PNG'
+          OnClick = mniExportPNGClick
+        end
       end
     end
     object Undo1: TMenuItem
@@ -130,9 +136,10 @@ object Kek: TKek
   object il1: TImageList
     Height = 64
     Width = 64
-    Left = 32
+    Left = 48
+    Top = 96
     Bitmap = {
-      494C010104001400600040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104001400640040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000000100008000000001002000000000000000
       0200000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4362,5 +4369,9 @@ object Kek: TKek
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000}
+  end
+  object dlgOpen1: TOpenDialog
+    Left = 616
+    Top = 119
   end
 end

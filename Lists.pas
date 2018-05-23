@@ -2,7 +2,6 @@ unit Lists;
 
 interface
 
-
 uses System.SysUtils,Vcl.Graphics,Vcl.ExtCtrls,vcl.Dialogs,Types_const;
 function aHead(head: PFigList;lol:TFigureInfo):boolean;
 procedure DeleteBlock(head: PFigList; P:TFigureInfo);
@@ -19,8 +18,8 @@ procedure insertFigure({pb1:TPaintBox;}head:PFigList; points:TFigureInfo;LRec:TF
     function LeftBorn(const head:PFigList;p:TFigureInfo):boolean;
 function GetAdjust(head:PFigList;lvl:integer;p:TFigureInfo;var d:Integer):integer;
 function GetRow(head:PFigList;lvl:integer;p:TFigureInfo):integer;
-
 implementation
+
 procedure createFigureHead(var head:PFigList);
 begin
   new(head);
@@ -40,7 +39,6 @@ var max:Integer;
   function GetAdj(head:PFigList;lvl:integer; var max,d:integer):integer;
   var temp,temphead:Pfiglist;
   begin
-
   temp:=head;
        while (temp<>nil)  do
        begin
@@ -49,9 +47,7 @@ var max:Integer;
          begin
          max:=temp.Info.y+temp.Info.Height;
          d:=temp.info.row;
-
          end;
-
           if temp.R<>nil  then
           begin
             result:=GetAdj(temp.R,lvl,max,d);
@@ -61,7 +57,6 @@ var max:Integer;
             result:=GetAdj(temp.L,lvl,max,d);
           end;
           temp:=temp^.Adr;
-
        end;
   result:=max;
   end;
@@ -75,15 +70,12 @@ begin
 result:= False;
 if (a.x = b.x) and (a.y = b.y) then
 result:=True;
-
-
 end;
 function GetRow(head:PFigList;lvl:integer;p:TFigureInfo):integer;
 var max:Integer;
   function GetR(head:PFigList;lvl:integer; var max:Integer):integer;
   var temp,temphead:Pfiglist;
   begin
-
   temp:=head;
        while (temp<>nil)  do
        begin
@@ -104,7 +96,6 @@ var max:Integer;
             result:=GetR(temp.L,lvl,max);
           end;
           temp:=temp^.Adr;
-
          end;
        end;
   result:=max;
@@ -137,66 +128,75 @@ begin
         temp.info.y:=temp.info.y + temp.Info.Height + offset;
         temp.Info.Row:=temp.Info.Row + 1;
         end;
-
         if temp.R<>nil  then
         begin
           SetAdjustment(temp.R,lvl,row);
         end;
         if temp.L<>nil  then
         begin
-
           SetAdjustment(temp.L,lvl,row);
          // JustAdjust(temp.L);
         end;
         temp:=temp^.Adr;
      end;
 end;
- function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
- var temp:PFigList;
+function GetParentAdr(const head:PFigList; P:PFigList):PFigList;
+  function GetP(const head:PFigList; P:PFiglist):PFigList;
+    var temp:PFigList;
+    begin
+    temp:=head;
+    while temp<> nil do
+      begin
+      if (temp^.Adr = P) then
+        begin
+        result:=temp;
+        exit;
+        end;
+        if temp.R<>nil then
+        begin
+          Result:=GetP(temp.R,P);
+        end;
+        if temp.L<>nil then
+        begin
+          Result:=GetP(temp.L,P);
+        end;
+
+        temp:=temp^.Adr;
+      end;
+    end;
   begin
-  Result:=nil;
-  temp:=head;
-  while temp<> nil do
-    begin
-      if temp.R<>nil then
-      begin
-        Result:=GetParentAdr(temp.R,P);
-      end;
-      if temp.L<>nil then
-      begin
-        Result:=GetParentAdr(temp.L,P);
-      end;
-    if (temp^.Adr = P) then result:=temp;
-      temp:=temp^.Adr;
-    end;
+  result:=nil;
+   result:=GetP(head,p);
   end;
- function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
-  var temp:PFigList;
-  begin
-  temp:=head;
-  while temp<> nil do
+function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
+    var temp:PFigList;
     begin
-      if temp.R<>nil then
+    temp:=head;
+    while temp<> nil do
       begin
-        Result:=Getadr(temp.R,info);
-      end;
-       if temp.L<>nil then
+      if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
       begin
-        Result:=Getadr(temp.L,info);
+      result:=temp;
+      exit;
       end;
-    if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
-    begin
-    result:=temp;
-    exit;
+        if temp.R<>nil then
+        begin
+          Result:=Getadr(temp.R,info);
+        end;
+         if temp.L<>nil then
+        begin
+          Result:=Getadr(temp.L,info);
+        end;
+
+        temp:=temp^.Adr;
+      end;
     end;
-      temp:=temp^.Adr;
-    end;
-  end;
+
  function Levelwidth(head:PFigList; lvl:integer):Integer;
  var temp,temphead:PFigList;
  begin
  //result:=RectMinWidth;
- with TBitmap.Create do
+ with TBitmap.Create do        //lol
  begin
      temp:=head;
    if (head.Info.level = lvl) and (Canvas.TextWidth(head.Info.Txt)>Result) then
@@ -304,9 +304,7 @@ function GetClickFig(x,y:integer; const head:PFigList; var selected:Boolean):TFi
       Result.x:=-1;
   end;
   begin
-
     Result:=GClickFig(x,y,head,selected);
-
   end;
 function aHead(head: PFigList;lol:TFigureInfo):boolean;
 begin
@@ -369,7 +367,6 @@ var LRecAdr,temphead,temp:PFigList;
     function LeftB(const head:PFigList;p:TFigureInfo;var ex:Boolean):boolean;
      var temp,temp2:PFigList;
     begin
-
       if not(ex) then
       begin
        temp2:=GetAdr(head,p);
@@ -415,7 +412,5 @@ var LRecAdr,temphead,temp:PFigList;
     temp^.Info.Txt:='';
     end;
   end;
-
-
 end.
 

@@ -3,13 +3,13 @@ unit DrawItems;
 interface
 
 uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
-procedure defaultDraw(head:PFigList;pb1:TPaintBox);
-procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean; ifState:TIfStates);
-procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
-procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
+procedure DrawBlocks(canv:TCanvas; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
+procedure defaultDraw(head:PFigList;canv:TCanvas);
+procedure DrawDirectArrows(canv:TCanvas; p:TFigureInfo; left:boolean; ifState:TIfStates);
+procedure drawRect(canv:TCanvas;p:TFigureInfo;Color:Tcolor);
+ procedure InsertTXT(canv:TCanvas;var p:TFigureInfo);
 function IsEmptyTXT(p:TFigureInfo):Boolean;
-procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
+procedure DrawArrow(canv:TCanvas; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
 
 
 implementation
@@ -46,7 +46,7 @@ var
     end;
 
   end;
-  procedure InsertTXT(pb1:TPaintBox;var p:TFigureInfo);
+  procedure InsertTXT(canv:TCanvas;var p:TFigureInfo);
 var
   txt:TLabeledEdit;
   TX,TY:Integer;
@@ -57,23 +57,23 @@ var
   oldStyle:TBrushStyle;
 begin
 cap:=(p.Txt);
-oldStyle:=pb1.Canvas.Brush.Style;
-pb1.Canvas.Brush.Style:={bsClear;}bsSolid;
+oldStyle:=Canv.Brush.Style;
+//pb1.Canvas.Brush.Style:={bsClear;}bsSolid;
 border:=2;
-TextW:=pb1.Canvas.TextWidth(cap);
-TextH:=pb1.Canvas.TextHeight(cap);
-case p.FigType of
-  TaskFig:
-  Rectan:=
-  Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
-  IfFig: //SuperHard Formula
-  Rectan:=
-  Rect(p.x+ round(p.width*(TextH/p.Height)),p.y+half(p.height-textH),p.x + p.width-round(p.width*(TextH/p.Height)),p.y+half(p.height-textH)+TextH);
-  WhileFig:  Rectan:=
-  Rect(p.x+ round(p.width*(TextH/p.Height)),p.y+half(p.height-textH),p.x + p.width-round(p.width*(TextH/p.Height)),p.y+half(p.height-textH)+TextH);
-  StartFig: ;
-  untilFig: ;
-end;
+TextW:=Canv.TextWidth(cap);
+TextH:=Canv.TextHeight(cap);
+  case p.FigType of
+    TaskFig:
+    Rectan:=
+    Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
+    IfFig: //SuperHard Formula
+    Rectan:=
+    Rect(p.x+ round(p.width*(TextH/p.Height)),p.y+half(p.height-textH),p.x + p.width-round(p.width*(TextH/p.Height)),p.y+half(p.height-textH)+TextH);
+    WhileFig:  Rectan:=
+    Rect(p.x+ round(p.width*(TextH/p.Height)),p.y+half(p.height-textH),p.x + p.width-round(p.width*(TextH/p.Height)),p.y+half(p.height-textH)+TextH);
+    StartFig: ;
+    untilFig: ;
+  end;
 //Rectan:=Rect(p.x+border,p.y+border,p.x + p.width-2*border,p.y + p.Height-2*border);
 
 //cap:=TextUtil(cap);
@@ -81,9 +81,9 @@ end;
 TX:=half(p.width)-half(TextW)+p.x;
 TY:=half(p.Height)-half(TextH)+p.y;
 //pb1.Canvas.Brush.Color:=clRed;
-pb1.Canvas.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
+Canv.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
 //pb1.Canvas.FillRect(rectan);
-pb1.Canvas.Brush.Style:=oldStyle;
+Canv.Brush.Style:=oldStyle;
 end;
 
  function IsEmptyTXT(p:TFigureInfo):Boolean;
@@ -98,14 +98,14 @@ end;
  begin
 
  end;
- procedure drawRect(pb1:TPaintBox;p:TFigureInfo;Color:Tcolor);
+ procedure drawRect(canv:TCanvas;p:TFigureInfo;Color:Tcolor);
  var prev:TColor;
 begin
   if p.FigType <> IfFig then
    begin
-    prev:=pb1.Canvas.Pen.Color;
-    pb1.Canvas.Pen.Color:=color;
-    with pb1.Canvas do
+    prev:=Canv.Pen.Color;
+    Canv.Pen.Color:=color;
+    with Canv do
     begin
       MoveTo(p.x,p.y);
       LineTo(p.x,p.y + p.Height);
@@ -113,20 +113,20 @@ begin
       LineTo(p.x +p.width,p.y);
       LineTo(p.x,p.y);
     end;
-    pb1.Canvas.Pen.Color:=prev;
-    InsertTXT(pb1,p);
+    Canv.Pen.Color:=prev;
+    InsertTXT(canv,p);
    end;
 end;
 
-procedure drawA(pb1:TPaintBox;p:TArrowInfo; Color:TColor);
+procedure drawA(canv:TCanvas;p:TArrowInfo; Color:TColor);
 var x,y:Integer;
 var prevColor:TColor;
 begin
-  prevColor:=pb1.Canvas.Pen.Color;
-  pb1.Canvas.Pen.Color:=Color;
+  prevColor:=Canv.Pen.Color;
+  Canv.Pen.Color:=Color;
   x:=Round(arrowk*sin(arrAngel));
   y:=Round(arrowk*cos(arrAngel));
-  with pb1.Canvas do
+  with Canv do
   begin
   MoveTo(p.x,p.y);
    case p.Direction of
@@ -145,15 +145,15 @@ begin
      LineTo(p.x+p.length-y,p.y-x)
     end;
    end;
-    pb1.Canvas.Pen.Color:=prevColor;
+    Canv.Pen.Color:=prevColor;
   end;
 end;
 //Draws  semicircle around Input Rectangle
-procedure drawEllipse(pb1:TPaintBox;x,y,width,height:Integer);
+procedure drawEllipse(canv:TCanvas;x,y,width,height:Integer);
 var R:Integer;
 begin
 R:=half(height);
-with pb1.Canvas do
+with Canv do
   begin
    Arc(x,y,x+height,y+height,x+R,y,x+R,y+height);
    Arc(x+width-height,y,x+width,y+height,x+width-R,y+height,x+width-R,y);
@@ -164,36 +164,36 @@ with pb1.Canvas do
    end;
 end;
 
-procedure defaultDraw(head:PFigList;pb1:TPaintBox);
+procedure defaultDraw(head:PFigList;canv:TCanvas);
 var p:TFigureInfo;
   x,y:integer;
   TX,TY:Integer;
   TextW,TextH: Integer;
 begin
- pb1.canvas.Pen.Width:=3;
-  with pb1.Canvas do
+ canv.Pen.Width:=3;
+  with Canv do
   begin
-  drawEllipse(pb1,head.Info.x ,head.Info.y,Head.info.width,Head.Info.Height);
+  drawEllipse(canv,head.Info.x ,head.Info.y,Head.info.width,Head.Info.Height);
   //drawEllipse(pb1,p.x ,p.y,100,50);
   p.Txt:=strBegin;
-  TextW:=pb1.Canvas.TextWidth(strBegin);
-  TextH:=pb1.Canvas.TextHeight(strBegin);
+  TextW:=Canv.TextWidth(strBegin);
+  TextH:=Canv.TextHeight(strBegin);
   TX:=head.Info.x+half(Head.info.width)-half(TextW);
   TY:=head.Info.y+half(Head.Info.Height)-half(TextH);
-  pb1.Canvas.Brush.Style:=bsClear;
+  Canv.Brush.Style:=bsClear;
   TextOut(TX,TY,strBegin);
-  pb1.Canvas.Brush.Style:=bsSolid;
+  Canv.Brush.Style:=bsSolid;
 //  p.FigType:=TaskFig;
  // InsertTXT(pb1,p);
   end;
 end;
 
-procedure DrawIF(pb1:TPaintBox; p:TFigureInfo; color:TColor);
+procedure DrawIF(canv:TCanvas; p:TFigureInfo; color:TColor);
 var prev:TColor;
 begin
-prev:=pb1.Canvas.Pen.Color;
-  pb1.Canvas.Pen.Color:=color;
-  with pb1.Canvas do
+prev:=Canv.Pen.Color;
+  Canv.Pen.Color:=color;
+  with Canv do
   begin
     MoveTo(p.x+half(p.width),p.y);
     LineTo(p.x+p.width,p.y + half(p.Height));
@@ -201,16 +201,16 @@ prev:=pb1.Canvas.Pen.Color;
     LineTo(p.x ,p.y+half(p.Height));
     LineTo(p.x+half(p.width),p.y);
   end;
-  InsertTXT(pb1,p);
-  pb1.Canvas.Pen.Color:=prev;
+  InsertTXT(canv,p);
+  Canv.Pen.Color:=prev;
 end;
 
-procedure DrawWhile(pb1:TPaintBox; p:TFigureInfo; color:TColor);
+procedure DrawWhile(canv:TCanvas; p:TFigureInfo; color:TColor);
 var prev:TColor;
 begin
-prev:=pb1.Canvas.Pen.Color;
-  pb1.Canvas.Pen.Color:=color;
-  with pb1.Canvas do
+prev:=Canv.Pen.Color;
+  Canv.Pen.Color:=color;
+  with Canv do
   begin
     MoveTo(p.x+forth(p.width),p.y);
     LineTo(p.x+3*forth(p.width),p.y);
@@ -220,32 +220,36 @@ prev:=pb1.Canvas.Pen.Color;
     LineTo(p.x ,p.y+half(p.Height));
     LineTo(p.x+forth  (p.width),p.y);
   end;
-  InsertTXT(pb1,p);
-  pb1.Canvas.Pen.Color:=prev;
+  InsertTXT(canv,p);
+  Canv.Pen.Color:=prev;
 end;
 
-procedure DrawFigure(pb1:TPaintBox; p:TFigureInfo; color:TColor);
+procedure DrawFigure(canv:TCanvas; p:TFigureInfo; color:TColor);
 begin
   case p.FigType of
       TaskFig:
         begin
-        drawRect(pb1,p,color);
-        //InsertTXT(pb1,p);
+        drawRect(canv,p,color);
+
         end;
         IfFig:
         begin
-        DrawIF(pb1,p,color);
+        DrawIF(canv,p,color);
         end;
         WhileFig:
         begin
-        drawWhile(pb1,p,color);
+        drawWhile(canv,p,color);
+        end;
+        RepeatFig:
+        begin
+        DrawWhile(canv,p,color);
         end;
 
   end;
 
 end;
 
-procedure DrawBlocks(pb1:TPaintBox; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
+procedure DrawBlocks(canv:TCanvas; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
 var temp,temphead:PFigList;
 var isRight:boolean;
 var inp,outp:PFigList;
@@ -261,9 +265,9 @@ begin
       begin
       isRight:=true;
       temphead:=temp.R;
-      DrawArrow(pb1,temp.r.info,temp.info,isRight,ifst);
-      DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R,maxX,maxY,ifst);
+      DrawArrow(canv,temp.r.info,temp.info,isRight,ifst);
+      DrawFigure(canv,temphead.info,clblack);
+      DrawBlocks(canv,temp.R,maxX,maxY,ifst);
       isRight:=false;
         if temp.Info.x > maxX then
         maxX:=temp.Info.x;
@@ -272,9 +276,9 @@ begin
       begin
       isRight:=true;
       temphead:=temp.l;
-      DrawArrow(pb1,temp.l.info,temp.info,isRight,ifst);
-      DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.l,maxX,maxY,ifst);
+      DrawArrow(canv,temp.l.info,temp.info,isRight,ifst);
+      DrawFigure(canv,temphead.info,clblack);
+      DrawBlocks(canv,temp.l,maxX,maxY,ifst);
       isRight:=false;
         if temp.Info.x > maxX then
         maxX:=temp.Info.x;
@@ -290,37 +294,37 @@ begin
         maxY:=temp.Info.y;
       if temp.Info.x > maxX then
         maxX:=temp.Info.x;
-    DrawFigure(pb1,temp.Info,clBlack);
+    DrawFigure(canv,temp.Info,clBlack);
     inp:=temp;
-      DrawArrow(pb1,inp.info,outp.info,isRight,ifst);
+      DrawArrow(canv,inp.info,outp.info,isRight,ifst);
       if temp.R<>nil  then
       begin
       isRight:=true;
       temphead:=temp.R;
-      DrawArrow(pb1,temp.r.info,temp.info,isRight,ifst);
-      DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.R,maxX,maxY,ifst);
+      DrawArrow(canv,temp.r.info,temp.info,isRight,ifst);
+      DrawFigure(canv,temphead.info,clblack);
+      DrawBlocks(canv,temp.R,maxX,maxY,ifst);
       isRight:=false;
       end;
       if temp.L<>nil  then
       begin
       isRight:=true;
       temphead:=temp.l;
-      DrawArrow(pb1,temp.l.info,temp.info,isRight,ifst);
-      DrawFigure(pb1,temphead.info,clblack);
-      DrawBlocks(pb1,temp.l,maxX,maxY,ifst);
+      DrawArrow(canv,temp.l.info,temp.info,isRight,ifst);
+      DrawFigure(canv,temphead.info,clblack);
+      DrawBlocks(canv,temp.l,maxX,maxY,ifst);
       isRight:=false;
       end;
    end;
 end;
 
-procedure DrawDirectArrows(pb1:TPaintBox; p:TFigureInfo; left:boolean; ifState:TIfStates);
+procedure DrawDirectArrows(canv:TCanvas; p:TFigureInfo; left:boolean; ifState:TIfStates);
 var x,y:Integer;
 var arrow:TArrowInfo;
 var predC: TColor;
 begin
-predC:=pb1.Canvas.Pen.Color;
-pb1.Canvas.Pen.Color:=clBlue;
+predC:=Canv.Pen.Color;
+Canv.Pen.Color:=clBlue;
 case p.FigType of
   TaskFig: ;
   IfFig:
@@ -328,7 +332,7 @@ case p.FigType of
     case ifState of
         RUP:
       begin
-        with pb1.Canvas do
+        with Canv do
         begin
           MoveTo((p.width+p.x-half(half(p.width))),p.y+half(half(p.Height)));
           LineTo(p.x+p.width+2*offset,p.y-half(offset));
@@ -338,7 +342,7 @@ case p.FigType of
       end;
       RDOWN:
       begin
-      with pb1.Canvas do
+      with Canv do
       begin
         MoveTo((p.width+p.x-half(half(p.width))),p.y+3*forth(p.Height));
         LineTo(p.x+p.width,PenPos.y+forth(p.height));
@@ -352,7 +356,7 @@ case p.FigType of
       arrow.x:=p.x+half(p.width);
       arrow.y:=p.y+p.Height;
       arrow.length:=offset;
-       drawA(pb1,arrow,clBlue);
+       drawA(canv,arrow,clBlue);
       end
   end;
   end;
@@ -390,23 +394,20 @@ else
      arrow.y:=p.y+p.Height;
      end;
      arrow.length:=offset;
-     drawA(pb1,arrow,clBlue);
+     drawA(canv,arrow,clBlue);
    end;
-   pb1.Canvas.Pen.Color:=predC;
+   Canv.Pen.Color:=predC;
 end;
 
-procedure RUPArrow(pb1:TPaintBox;outp,inp:TFigureInfo);
-begin
 
-end;
-  procedure DrawArrow(pb1:TPaintBox; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
+  procedure DrawArrow(canv:TCanvas; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
   var x,y:Integer;
   begin
    if isRight then
    begin
     x:=inp.x;
     y:=inp.y+half(inp.Height);
-    with pb1.Canvas do
+    with Canv do
           begin
         case outp.FigType of
           taskFig:
@@ -438,6 +439,13 @@ end;
              LineTo(inp.x+half(inp.width),inp.y-half(offset));
              LineTo(inp.x+half(inp.width),inp.y);
            end;
+           RepeatFig:
+           begin
+              MoveTo((outp.width+outp.x-half(forth(outp.width))),outp.y+half(half(outp.Height)));
+             LineTo(inp.x,inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y-half(offset));
+             LineTo(inp.x+half(inp.width),inp.y);
+           end;
         end;
        end;
    end
@@ -445,7 +453,7 @@ end;
    begin
     x:=half(inp.width)+inp.x;
     y:=inp.y;
-     with pb1.Canvas do
+     with Canv do
         begin
      case outp.FigType of
       taskFig:
@@ -461,6 +469,12 @@ end;
       WhileFig:
       begin
         MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
+         LineTo(x,y);
+      end;
+      RepeatFig:
+      begin
+        MoveTo((half(outp.width)+outp.x),outp.y+outp.Height);
+         LineTo(x,y);
       end;
      end;
 
