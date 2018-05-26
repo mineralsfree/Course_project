@@ -18,103 +18,7 @@
       function LeftBorn(const head:PFigList;p:TFigureInfo):boolean;
   function GetAdjust(head:PFigList;lvl:integer;p:TFigureInfo;var d:Integer):integer;
   function GetRow(head:PFigList;lvl:integer;p:TFigureInfo):integer;
-    procedure SaveFile(const head:PFigList; filename,location:string);
-    procedure ReadFile(const head:PFigList; filename,location:string);
   implementation
-  procedure SaveFile(const head:PFigList; filename,location:string);
-  var temp:PFigList;
-  f: TPFile;
-procedure saveF(head:PFigList; var f:TPFile);
-    var temp:PFigList;
-    begin
-    if head<>nil then
-      begin
-      temp:=head;
-        while temp<>nil do
-        begin
-          write(f,temp.Info);
-
-          if temp.R<>nil then
-          saveF(temp.R,f);
-
-          if temp.L<>nil then
-          saveF(temp.L,f);
-
-          temp:=temp^.Adr;
-        end;
-      end;
-    end;
-begin
-  Assign(f,filename);
-  Rewrite(f);
-  saveF(head.adr,f);
-
-end;
-procedure ReadFile(const head:PFigList; filename,location:string);
-var f:TPFile;
-temp2:TFigureInfo;
-
-procedure ReadF(head:PFigList;{temp2:PFigList;} var f:TPFile);
-var ttemp,temp:Pfiglist;
-temp1:TFigureInfo;
-begin
-temp:=head;
-  if not (Eof(f)) then
-  begin
-    if temp.Info.RC then
-    begin
-    ttemp:=temp;
-    read(f,temp1);
-    New(temp^.R);
-    temp:=temp^.R;
-    temp^.Adr:=nil;
-    temp^.L:=nil;
-    temp^.R:=nil;
-    temp^.Info:=temp1;
-    readf(temp,f);
-    temp:=ttemp;
-    //if not (Eof(f)) then read(f,temp1);
-    end;
-    if temp.Info.LC then
-    begin
-    ttemp:=temp;
-    read(f,temp1);
-    New(temp^.l);
-    temp:=temp^.l;
-    temp^.Adr:=nil;
-    temp^.L:=nil;
-    temp^.R:=nil;
-    temp^.Info:=temp1;
-    ReadF(temp,F);
-    temp:=ttemp;
-    //if not (Eof(f)) then read(f,temp1);
-    end;
-    if temp.info.DC then
-    begin
-    ttemp:=temp;
-    read(f,temp1);
-    New(temp^.Adr);
-    temp:=temp^.Adr;
-    temp^.Adr:=nil;
-    temp^.L:=nil;
-    temp^.R:=nil;
-    temp^.Info:=temp1;
-    ReadF(temp,F);
-    temp:=ttemp;
-   //if not (Eof(f)) then  read(f,temp1);
-    end;
-  end;
-end;
-begin
-if FileExists(filename) then
-begin
-  Assignfile(f,filename);
-  Reset(f);
- { read(f,temp2);   }
-  ReadF(head,{temp2,}f);
-end;
-
-end;
 
   procedure createFigureHead(var head:PFigList);
   begin
@@ -128,10 +32,6 @@ end;
     head.R:=nil;
     head.Info.FigType:=TaskFig;
     head.Info.Row:=0;
-    head.Info.RC:=False;
-    head.Info.LC:=False;
-    head.Info.DC:=True;
-    head.Info.txt:='';
   end;
 
   function GetAdjust(head:PFigList;lvl:integer;p:TFigureInfo;var d:Integer):integer;
@@ -247,7 +147,7 @@ end;
       temp:=head;
       while temp<> nil do
         begin
-        if (temp^.Adr = P) or(temp^.L = P) or (temp^.R = P)   then
+        if (temp^.Adr = P) then
           begin
           result:=temp;
           exit;
@@ -439,19 +339,10 @@ end;
   end;
 
   procedure DeleteBlock(head: PFigList; P:TFigureInfo);
-  var temp,PAdr: PFigList;
+  var temp: PFigList;
   begin
-   PAdr:=Getadr(head,P);
-   temp:=GetParentAdr(head,PAdr);
-   if temp<>nil then
-   begin
-   if temp.Info.Rc then
-   temp.R:=nil;
-   if temp.Info.Lc then
-   temp.L:=nil;
-   if temp.Info.Dc then
+   temp:=GetParentAdr(head,GetAdr(head,P));
    temp.adr:=nil;
-   end;
   end;
   procedure CreateNode(head: PFigList;Points:TFigureInfo; LRec:TFigureInfo);
   var LRecAdr,temphead,temp:PFigList;

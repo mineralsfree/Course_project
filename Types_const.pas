@@ -20,6 +20,7 @@ type
    TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig, RepeatFig);
    TDirection = (Horizontal, Vertical);
 
+
     TArrowInfo = record
     id,x,y,length: integer;
     Direction: TDirection;
@@ -32,9 +33,10 @@ type
   end;
 
   TFigureInfo = record
-  Txt: string ;
+  Txt: string[50] ;
   x,width,y,Height,level,Row:integer;
   FigType: TFigType;
+  RC,LC,DC:Boolean;
   end;
   PFigList = ^FigList;
   FigList = record
@@ -43,6 +45,7 @@ type
     L: PFigList;
     R: PFiglist;
   end;
+  TPFile = file of TFigureInfo;
   function third(x:integer):integer;
   function half(x:integer):integer;
   function forth(x:integer):integer;

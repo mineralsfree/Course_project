@@ -34,7 +34,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
-    procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
+     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure pb1Paint(Sender: TObject);
     procedure btntaskClick(Sender: TObject);
@@ -47,6 +47,8 @@ type
     procedure inptext(pb1:TPaintBox; pinf:TFigureInfo);
     procedure mniExportBmpClick(Sender: TObject);
     procedure mniExportPNGClick(Sender: TObject);
+    procedure Open1Click(Sender: TObject);
+    procedure Save1Click(Sender: TObject);
 
 
   private
@@ -100,6 +102,7 @@ ClickFigure:=FigureHead.Info;
 clrscreen(pb1);
 Selected:=False;
 IfState:=RUP;
+pb1.Height:=800;
 //scrollbox1.VertScrollBar.Position:=startY -20;
 //scrollbox1.VertScrollBar.Position:=0;
 end;
@@ -200,6 +203,17 @@ begin
 
 end;
 
+procedure TKek.Save1Click(Sender: TObject);
+begin
+SaveFile(FigureHead,'scheme.brakh','scheme.brakh');
+ShowMessage('saved');
+end;
+procedure TKek.Open1Click(Sender: TObject);
+begin
+ReadFile(FigureHead,'scheme.brakh','scheme.brakh');
+pb1.repaint;
+end;
+
 procedure TKek.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var ClickAdr:PFigList;
@@ -294,6 +308,7 @@ var x0,y0:Integer;
 var lol:PFigList;
  var sel,ifst,maxStr:string;
  var prex:TFigureInfo;
+ var BolStr:string[6];
 
 begin
 
@@ -369,7 +384,13 @@ if Selected  then
       Down: ifst:='down';
   end;
 ClickFigure:=GetClickFig(x,y,FigureHead,Selected);
-
+BolStr:='R0D0L0';
+  if ClickFigure.RC then
+  BolStr[2]:='1' else BolStr[2]:='0';
+  if ClickFigure.DC then
+  BolStr[4]:='1' else BolStr[4]:='0';
+  if ClickFigure.LC then
+  BolStr[6]:='1' else BolStr[6]:='0';
 
 if selected then
 sel:= 'selected' else sel:='Not selected';
@@ -384,6 +405,7 @@ sel:= 'selected' else sel:='Not selected';
     +'Ifstate: '+ ifst +#10#13
     +'row: '+ IntToStr(ClickFigure.Row) +#10#13
     +'maxX: ' + IntToStr(maxX) + #10#13
+    +'bolsrr '+ BolStr + #10#13
     +'Memo1.CaretPos.y: ' + IntToStr(mmoInput.CaretPos.y) + #10#13  ;
  //   +'Memo1.CaretPos.X: ' + IntToStr(mmoInput.CaretPos.X*ChrWidth) + #10#13 ;
    // +'level MaxWidth: '  + IntToStr(Levelwidth(FigureHead,lol.info.level));
@@ -398,7 +420,9 @@ var prex:PFigList;
 tempP:TFigureInfo;
 var dRow:integer;
 begin
-
+   p.LC:=False;
+   p.RC:=False;
+   p.DC:=False;
   if Selected  then
   begin
   prex:=GetAdr(FigureHead,ClickFigure);
@@ -415,6 +439,8 @@ begin
       p.Row:=prex.Info.row;
       p.width:=RectMinWidth;
       p.level:=prex.Info.level+1;
+      prex.info.RC:=true;
+
       CreateNode(FigureHead,p,prex.Info);
       end;
       RDOWN:
@@ -423,6 +449,7 @@ begin
       p.y:=ClickFigure.y+ClickFigure.Height + offset;
       p.Row:=ClickFigure.row+1;
       p.width:=RectMinWidth;
+      prex.info.LC:=true;
       p.level:=ClickFigure.level+1;
        if p.level>1 then
       SetAdjustment(FigureHead,p.level,p.Row);
@@ -439,6 +466,7 @@ begin
       p.Row:=ClickFigure.row+1;
       p.width:=RectMinWidth;
       p.level:=ClickFigure.level+1;
+      prex.info.LC:=true;
       if p.level>1 then
       SetAdjustment(FigureHead,p.level,p.Row);
       CreateLeft(FigureHead,p,ClickFigure);
@@ -450,6 +478,7 @@ begin
     p.y:=prex.Info.y;
     p.Row:=prex.Info.row;
     p.width:=RectMinWidth;
+    prex.info.RC:=true;
     p.level:=prex.Info.level+1;
     CreateNode(FigureHead,p,prex.Info);
     end
@@ -460,12 +489,14 @@ begin
     p.y:=ClickFigure.y+half(ClickFigure.Height)-half(RectMinHeight);
     p.Row:=ClickFigure.row;
     p.width:=RectMinWidth;
+    prex.info.RC:=true;
     p.level:=ClickFigure.level+1;
     CreateNode(FigureHead,p,ClickFigure);
     end
     else  if (prex.adr = nil) then
     begin
       p.x:=ClickFigure.x;
+      prex.info.DC:=True;
       p.width:=ClickFigure.width;
       p.level:=ClickFigure.level;
       p.y:=GetAdjust(FigureHead,p.level,ClickFigure,dRow);
@@ -515,6 +546,7 @@ procedure TKek.btnIfClick(Sender: TObject);
 begin
 ButtonReaction(IfFig);
 end;
+
 
 procedure TKek.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
