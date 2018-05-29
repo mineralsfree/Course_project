@@ -5,7 +5,7 @@ object Kek: TKek
   HorzScrollBar.Tracking = True
   VertScrollBar.Smooth = True
   VertScrollBar.Tracking = True
-  Caption = 'Form2'
+  Caption = 'Damke Editor'
   ClientHeight = 681
   ClientWidth = 984
   Color = clBtnFace
@@ -37,30 +37,23 @@ object Kek: TKek
     OnMouseWheelUp = ScrollBox1MouseWheelUp
     object pb1: TPaintBox
       Left = 0
-      Top = -2
+      Top = 0
       Width = 929
-      Height = 403
+      Height = 400
       Color = clBtnFace
       ParentColor = False
       OnMouseDown = pb1MouseDown
       OnPaint = pb1Paint
     end
     object lbl1: TLabel
-      Left = 0
-      Top = 593
-      Width = 980
-      Height = 13
-      Align = alBottom
+      Left = 964
+      Top = 0
+      Width = 16
+      Height = 606
+      Align = alRight
       Caption = 'lbl1'
-      ExplicitWidth = 16
-    end
-    object notalabel: TLabel
-      Left = 560
-      Top = 336
-      Width = 44
-      Height = 13
-      Caption = 'notalabel'
-      Visible = False
+      ExplicitLeft = 967
+      ExplicitHeight = 13
     end
     object mmoInput: TMemo
       Left = 439
@@ -121,12 +114,22 @@ object Kek: TKek
       end
       object Open1: TMenuItem
         Caption = 'Open'
+        OnClick = Open1Click
       end
       object Save1: TMenuItem
         Caption = 'Save'
+        OnClick = Save1Click
       end
       object Export1: TMenuItem
         Caption = 'Export'
+        object mniExportBmp: TMenuItem
+          Caption = 'BMP'
+          OnClick = mniExportBmpClick
+        end
+        object mniExportPNG: TMenuItem
+          Caption = 'PNG'
+          OnClick = mniExportPNGClick
+        end
       end
     end
     object Undo1: TMenuItem
@@ -136,9 +139,10 @@ object Kek: TKek
   object il1: TImageList
     Height = 64
     Width = 64
-    Left = 32
+    Left = 48
+    Top = 96
     Bitmap = {
-      494C010104001400600040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101040014006C0040004000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000000100008000000001002000000000000000
       0200000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4368,5 +4372,9 @@ object Kek: TKek
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000}
+  end
+  object dlgOpen1: TOpenDialog
+    Left = 616
+    Top = 119
   end
 end

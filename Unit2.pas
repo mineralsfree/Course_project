@@ -136,13 +136,14 @@ getCharParams(ChrWidth,Chrheight);
 p:=GetAdr(figurehead,pinf);
    mmoInput.Left:=pb1.left;
    mmoInput.Top:=pb1.Top;
-   mmoInput.Width:=MaxInlineChars* ChrWidth;
-   mmoInput.Height:=RectMinWidth;
+   mmoInput.Width:=RectMinWidth;
+   mmoInput.Height:=RectMinHeight;
    mmoInput.Visible:=True;
    mmoInput.Lines.Clear;
    mmoInput.SelStart:=0;
    mmoInput.Lines.Add(p.Info.Txt);
-   mmoInput.MaxLength:=30;
+   mmoInput.MaxLength:=60;
+
 end;
 procedure TKek.mniExportBmpClick(Sender: TObject);
 var
@@ -276,6 +277,8 @@ end;
 if selected and (key = 13) then
 begin
 Inptext(pb1,ClickFigure);
+
+
 end;
 //ShowMessage(IntToStr(key));
 // if key = 37 then  //  showmessage('left');
@@ -316,7 +319,24 @@ var lol:PFigList;
  var BolStr:string[6];
 
 begin
+if  (mmoInput.Visible)  then
+ begin
+  if (MaxLength(pb1.Canvas,mmoInput.Text)<RectMinWidth) then
+  begin
+   GetAdr(FigureHead,ClickFigure).Info.Txt:=mmoInput.Text;
+   mmoInput.Visible:=False;
+   //  Showmessage(IntToStr(mmoInput.Lines.Count));
+     GetAdr(FigureHead,ClickFigure).Info.lines:=mmoInput.Lines.Count;
+  end
+  else
+  begin
 
+  //Showmessage(IntToStr(mmoInput.Lines.Count));
+  ShowMessage('word don''t fit the screen');
+  inptext(pb1,ClickFigure);
+  exit;
+  end;
+ end;
 if Selected  then
   begin
   // ShowMessage('lol');
@@ -378,11 +398,7 @@ if Selected  then
     mmoInput.Visible:= False;
     end;
   end;}
-   if  (mmoInput.Visible) then
- begin
-   GetAdr(FigureHead,ClickFigure).Info.Txt:=mmoInput.Text;
-   mmoInput.Visible:=False;
- end;
+
   case IfState of
       RUP: ifst:='RUP';
       RDOWN: ifst:='Rdown';

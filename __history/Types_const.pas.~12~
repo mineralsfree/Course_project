@@ -1,7 +1,7 @@
 unit Types_const;
 
 interface
-
+uses System.classes;
 const strBegin = 'BEGIN';
   FieldLeft:Integer = 0;
   FieldTop:Integer = 0;
@@ -10,14 +10,16 @@ const strBegin = 'BEGIN';
   RectMinWidth:Integer = 150;
   RectMinHeight:Integer = 100;
   offset:Integer = 75;
-  startX:Integer = 20;
+  startX:Integer = 50;
   startY:Integer = 20;
   Radius:Integer = 30;
   arrowk:Integer = 12;
   arrAngel: real = Pi/6;
 type
-   TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig);
+  TIfStates = (RUP, RDOWN, DOWN);
+   TFigType = (TaskFig,IfFig,WhileFig,StartFig,untilFig, RepeatFig);
    TDirection = (Horizontal, Vertical);
+
 
     TArrowInfo = record
     id,x,y,length: integer;
@@ -31,9 +33,10 @@ type
   end;
 
   TFigureInfo = record
-  Txt: string[255];
-  x,width,y,Height,level:integer;
+  Txt: string[50] ;
+  x,width,y,Height,level,Row:integer;
   FigType: TFigType;
+  RC,LC,DC:Boolean;
   end;
   PFigList = ^FigList;
   FigList = record
@@ -42,8 +45,10 @@ type
     L: PFigList;
     R: PFiglist;
   end;
+  TPFile = file of TFigureInfo;
   function third(x:integer):integer;
   function half(x:integer):integer;
+  function forth(x:integer):integer;
 
 implementation
 function half(x:integer):integer;
@@ -53,6 +58,10 @@ end;
 function third(x:integer):integer;
 begin
   result:=Round(x/3)
+end;
+function forth(x:integer):integer;
+begin
+  result:=Round(x/4)
 end;
 
 end.

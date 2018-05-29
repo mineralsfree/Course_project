@@ -33,10 +33,11 @@ type
   end;
 
   TFigureInfo = record
-  Txt: string[50] ;
+  Txt: string[100] ;
   x,width,y,Height,level,Row:integer;
   FigType: TFigType;
   RC,LC,DC:Boolean;
+  Lines:Byte;
   end;
   PFigList = ^FigList;
   FigList = record

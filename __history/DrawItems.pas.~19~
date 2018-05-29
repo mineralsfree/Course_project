@@ -2,17 +2,14 @@ unit DrawItems;
 
 interface
 
-uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs,Vcl.StdCtrls,Winapi.Windows,StrUtils;
+uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs;
 procedure DrawBlocks(canv:TCanvas; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
 procedure defaultDraw(head:PFigList;canv:TCanvas);
 procedure DrawDirectArrows(canv:TCanvas; p:TFigureInfo; left:boolean; ifState:TIfStates);
 procedure drawRect(canv:TCanvas;p:TFigureInfo;Color:Tcolor);
  procedure InsertTXT(canv:TCanvas;var p:TFigureInfo);
 function IsEmptyTXT(p:TFigureInfo):Boolean;
-  function MaxLength(canv:TCanvas;kek:string):integer;
 procedure DrawArrow(canv:TCanvas; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
-procedure DrawRectEx(const Canvas: TCanvas; const Rect: TRect;
-  Text: string);
 
 
 implementation
@@ -49,36 +46,6 @@ var
     end;
 
   end;
-  function MaxLength(Canv:TCanvas;kek:string):integer;
-var str:String;
-temp:Integer;
-begin
-  Str:='';
-  result:=0;
-  while pos(' ',kek)<>0 do
-  begin
-    if Pos(' ',kek)>length(str) then
-    str:=Copy(kek,0,pos(' ',kek));
-    Delete(kek,Pos(' ',kek),Pos(' ',kek)+1);
-  end;
-  if length(kek)>Result then
-  str:=kek;
-  Result:=Canv.TextWidth(str);
-end;
-  function CenterText(canv:TCanvas;Rect:TRect;H,W,L:Integer; Cap:string):TRect;
-  var FullH,FullW,adjustH,adjustL:integer;
-  begin
-
-  FullW:=MaxLength(canv,cap);
-  adjustL:=Round((Rect.Width-FullW)/2);
-  FullH:=L*H+L*3;
-  adjustH:=Round((Rect.Height-Fullh)/2);
-  result.Top:=rect.Top+adjustH;
-  Result.Bottom:=Rect.Bottom-adjustH;
-  Result.Left:=Rect.Left{+adjustL};
-
-
-  end;
   procedure InsertTXT(canv:TCanvas;var p:TFigureInfo);
 var
   txt:TLabeledEdit;
@@ -91,7 +58,7 @@ var
 begin
 cap:=(p.Txt);
 oldStyle:=Canv.Brush.Style;
-Canv.Brush.Style:=bsClear;
+//pb1.Canvas.Brush.Style:={bsClear;}bsSolid;
 border:=2;
 TextW:=Canv.TextWidth(cap);
 TextH:=Canv.TextHeight(cap);
@@ -114,89 +81,11 @@ TextH:=Canv.TextHeight(cap);
 TX:=half(p.width)-half(TextW)+p.x;
 TY:=half(p.Height)-half(TextH)+p.y;
 //pb1.Canvas.Brush.Color:=clRed;
-if cap<>'' then
-begin
-Rectan:=CenterText(canv,Rectan,TextH,TextW,p.Lines,cap);
-end;
-//hDC:=GetDC(canvas.GetParent())
-//Canv.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
-Drawrectex(canv,Rectan,cap);
+Canv.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
 //pb1.Canvas.FillRect(rectan);
 Canv.Brush.Style:=oldStyle;
 end;
 
-procedure DrawRectEx(const Canvas: TCanvas; const Rect: TRect;
-  Text: string);
-var
-  i, oldWidth, Width: Integer;
-  PoleWidth, PoleWidth2: Integer;
-  l, t: Integer;
-  CharHeight: Integer;
-  s, NewS, TextSpace: string;
-begin
-  i := 1;
-  s := '';
-
-  TextSpace := Text + ' ';              // Пробел в коне для правильной работы
-                                        // цикла while
-
-  CharHeight := Canvas.TextHeight('V'); // Высота символов
-
-  oldWidth := 0;
-
-  PoleWidth := Rect.Width;  // Длина всего поля для рисования
-  PoleWidth2 := PoleWidth div 2;        // Половина длины поля
-  t := Rect.Top;                        // Высота, на которой выводится строка
-
-  while PosEx(' ', TextSpace, i) <> 0 do
-  begin
-    NewS := Copy(TextSpace, i, PosEx(' ', TextSpace, i) - i + 1);
-
-    Width := Canvas.TextWidth(NewS);
-    if Width + oldWidth < PoleWidth then
-    begin
-      s := s + NewS;
-      Inc(oldWidth, Width);
-    end
-    else
-    begin
-      if oldWidth > 0 then
-      begin
-        // Рисование буфера и очистка его
-        l := PoleWidth2 - oldWidth div 2 + Rect.Left;
-        Canvas.TextOut(l, t, s);
-        s := NewS;
-        oldWidth := Width;
-      end
-      else
-      begin
-        // Рисуем одно слово
-        oldWidth := 0;
-        s := '';
-
-        l := PoleWidth2 - Width div 2 + Rect.Left;
-        Canvas.TextOut(l, t, NewS);
-      end;
-
-      Inc(t, CharHeight);
-      if t + CharHeight > Rect.Bottom then
-      begin
-        oldWidth := 0;
-        Break;
-      end;
-    end;
-
-    // Следующее слово
-    i := PosEx(' ', TextSpace, i) + 1;
-  end;
-
-  // Вывод остатков текста
-  if oldWidth > 0 then
-  begin
-    l := PoleWidth2 - oldWidth div 2 + Rect.Left;
-    Canvas.TextOut(l, t, s);
-  end;
-end;
  function IsEmptyTXT(p:TFigureInfo):Boolean;
  begin
  Result:=False;
@@ -446,32 +335,19 @@ case p.FigType of
         with Canv do
         begin
           MoveTo((p.width+p.x-half(half(p.width))),p.y+half(half(p.Height)));
-          LineTo(p.x+p.width+offset,p.y-half(offset));
-          LineTo(PenPos.X+RectMinWidth,p.y-half(offset));
-          LineTo(p.x+p.width+offset+RectMinWidth,p.y);
+          LineTo(p.x+p.width+2*offset,p.y-half(offset));
+          LineTo(p.x+p.width+2*offset+Rectminwidth+half(RectMinWidth),p.y-half(offset));
+          LineTo(p.x+p.width+2*offset+Rectminwidth+half(RectMinWidth),p.y);
         end;
-        {MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+half(half(outp.Height)));
-             LineTo(inp.x,inp.y-half(offset));
-             LineTo(inp.x+half(inp.width),inp.y-half(offset));
-             LineTo(inp.x+half(inp.width),inp.y);    }
       end;
       RDOWN:
       begin
       with Canv do
       begin
-
-        {  LineTo(p.x+p.width+offset,p.y-half(offset));
-          LineTo(PenPos.X+RectMinWidth,p.y-half(offset));
-          LineTo(p.x+p.width+offset,p.y+half(offset));
-          }
         MoveTo((p.width+p.x-half(half(p.width))),p.y+3*forth(p.Height));
-        LineTo(p.x+p.width+offset,p.y+p.Height+half(offset));
+        LineTo(p.x+p.width,PenPos.y+forth(p.height));
         LineTo(penpos.x+RectMinWidth,penpos.y);
-        LineTo(PenPos.X ,penpos.y + half(offset));
-        {     MoveTo((outp.width+outp.x-half(half(outp.width))),outp.y+3*forth(outp.Height));
-             LineTo(inp.x,inp.y-half(offset));
-             LineTo(inp.x+half(inp.width),inp.y-half(offset));
-             LineTo(inp.x+half(inp.width),inp.y);}
+        LineTo(PenPos.X ,penpos.y + offset);
       end;
       end;
       DOWN:
