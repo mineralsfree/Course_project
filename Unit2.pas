@@ -237,8 +237,13 @@ if ClickAdr.R<>nil then
    except
 
    end;     }
-
- if key = 38 then  //  showmessage('up');
+ if key = VK_LEFT then
+ begin
+ ClickFigure:=GetParentAdr(FigureHead,ClickAdr).Info;
+ pb1.Repaint;
+ exit;
+ end;
+ if key = VK_UP then  //  showmessage('up');
   begin
    if Selected then
      begin
@@ -449,7 +454,9 @@ begin
       p.y:=ClickFigure.y+ClickFigure.Height + offset;
       p.Row:=ClickFigure.row+1;
       p.width:=RectMinWidth;
-      prex.info.LC:=true;
+
+      prex.info.LC:=true;      //   Тут крашиться, GetAdr Не работает правильно
+
       p.level:=ClickFigure.level+1;
        if p.level>1 then
       SetAdjustment(FigureHead,p.level,p.Row);
