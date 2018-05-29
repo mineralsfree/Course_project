@@ -5,7 +5,7 @@ object Kek: TKek
   HorzScrollBar.Tracking = True
   VertScrollBar.Smooth = True
   VertScrollBar.Tracking = True
-  Caption = 'Form2'
+  Caption = 'Damke Editor'
   ClientHeight = 681
   ClientWidth = 984
   Color = clBtnFace
