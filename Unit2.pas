@@ -159,6 +159,7 @@ begin
       Height := pb1.Height;
       defaultDraw(FigureHead, canvas);
       DrawBlocks(Canvas,FigureHead,kek,lol, IfState);
+      drawend(FigureHead,Canvas);
       SaveToFile(dlgOpen1.FileName);
       free;
     end;
@@ -188,6 +189,7 @@ begin
         Height := pb1.Height;
         defaultDraw(FigureHead, canvas);
         DrawBlocks(Canvas,FigureHead,kek,lol, IfState);
+        drawend(FigureHead,Canvas);
       end;
       png.Assign(bitmap);
       rect.Left := 0;
@@ -553,6 +555,7 @@ if Selected then
   drawRect(pb1.Canvas,ClickFigure,clBlue);
   end;
   defaultDraw(FigureHead,pb1.Canvas);
+  drawend(FigureHead,pb1.Canvas);
 end;
 
 procedure TKek.btntaskClick(Sender: TObject);

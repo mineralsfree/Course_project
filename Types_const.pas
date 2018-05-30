@@ -3,6 +3,7 @@ unit Types_const;
 interface
 uses System.classes;
 const strBegin = 'BEGIN';
+  strEnd1 = 'END' ;
   FieldLeft:Integer = 0;
   FieldTop:Integer = 0;
   FieldWidth:Integer = 750;

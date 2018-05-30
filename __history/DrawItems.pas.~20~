@@ -2,13 +2,12 @@ unit DrawItems;
 
 interface
 
-uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs,Vcl.StdCtrls,StrUtils;
+uses 	 System.SysUtils,System.Types, Types_const,Vcl.Graphics,Lists,Vcl.ExtCtrls,vcl.Dialogs,Vcl.StdCtrls,Winapi.Windows,StrUtils;
 procedure DrawBlocks(canv:TCanvas; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
 procedure defaultDraw(head:PFigList;canv:TCanvas);
 procedure DrawDirectArrows(canv:TCanvas; p:TFigureInfo; left:boolean; ifState:TIfStates);
 procedure drawRect(canv:TCanvas;p:TFigureInfo;Color:Tcolor);
  procedure InsertTXT(canv:TCanvas;var p:TFigureInfo);
- procedure drawend(head:PFigList; Canvas:TCanvas);
 function IsEmptyTXT(p:TFigureInfo):Boolean;
   function MaxLength(canv:TCanvas;kek:string):integer;
 procedure DrawArrow(canv:TCanvas; inp,outp:TFigureInfo;isRight:Boolean;ifstate:TIfStates);
@@ -115,17 +114,13 @@ TextH:=Canv.TextHeight(cap);
 TX:=half(p.width)-half(TextW)+p.x;
 TY:=half(p.Height)-half(TextH)+p.y;
 //pb1.Canvas.Brush.Color:=clRed;
-{if cap<>'' then
-begin
-Rectan:=CenterText(canv,Rectan,TextH,TextW,p.Lines,cap);
-end;  }
-//hDC:=GetDC(canvas.GetParent())
-//Canv.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
 if cap<>'' then
 begin
-Drawrectex(canv,Rectan,cap);
+Rectan:=CenterText(canv,Rectan,TextH,TextW,p.Lines,cap);
 end;
-//Drawrectex(canv,Rectan,cap);
+//hDC:=GetDC(canvas.GetParent())
+//Canv.TextRect(Rectan,cap,[tfVerticalCenter ,tfNoPrefix,tfWordBreak]);
+Drawrectex(canv,Rectan,cap);
 //pb1.Canvas.FillRect(rectan);
 Canv.Brush.Style:=oldStyle;
 end;
@@ -149,7 +144,7 @@ begin
 
   oldWidth := 0;
 
-  PoleWidth := Rect.right-rect.Left;  // Длина всего поля для рисования
+  PoleWidth := Rect.Width;  // Длина всего поля для рисования
   PoleWidth2 := PoleWidth div 2;        // Половина длины поля
   t := Rect.Top;                        // Высота, на которой выводится строка
 
@@ -364,33 +359,7 @@ begin
   end;
 
 end;
-procedure drawend(head:PFigList; Canvas:TCanvas);
-var temp:PFigList;
-  x,y:integer;
-  TX,TY:Integer;
-  TextW,TextH: Integer;
-begin
-temp:=head;
-while temp.adr<>nil do
-    temp:=temp^.Adr;
-TextW:=Canvas.TextWidth(strBegin);
-  TextH:=Canvas.TextHeight(strBegin);
 
-
-
-  with Canvas do
-  begin
-  MoveTo(temp.Info.x + half(temp.Info.width), temp.Info.y+temp.Info.Height);
-  LineTo(PenPos.X,PenPos.Y+offset);
-  TX:=startX-radius+half(Head.info.width)-half(TextW);
-  TY:=PenPos.Y+half(Head.Info.Height)-half(TextH);
-  drawEllipse(Canvas,startX-radius,PenPos.Y, temp.Info.width,2*radius);
-
-  end;
-  Canvas.Brush.Style:=bsClear;
-  canvas.TextOut(TX,TY,strEnd1);
-  Canvas.Brush.Style:=bsSolid;
-end;
 procedure DrawBlocks(canv:TCanvas; head:PFigList; var maxX,maxY:integer; ifst:TIfStates);
 var temp,temphead:PFigList;
 var isRight:boolean;
