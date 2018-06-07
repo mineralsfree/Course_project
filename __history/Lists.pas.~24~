@@ -106,7 +106,7 @@ temp:=head;
   end;
 end;
 begin
-//if FileExists(filename) then
+if FileExists(filename) then
 begin
   Assignfile(f,filename);
   Reset(f);
@@ -270,36 +270,25 @@ end;
     end;
   function GetAdr(const head:PFigList; info:TFigureInfo):PFigList;
       var temp:PFigList;
-      var found:Boolean;
-      function GAdr(head:PFigList; info:TFigureInfo; var isFound:Boolean):PFigList;
-      var temp:PFigList;
       begin
-        if NOT(isFound) then
-         begin
-            temp:=head;
+      temp:=head;
       while temp<> nil do
         begin
           if temp.R<>nil then
           begin
-            Result:=Gadr(temp.R,info,isFound);
+            Result:=Getadr(temp.R,info);
           end;
            if temp.L<>nil then
           begin
-            Result:=Gadr(temp.L,info,isFound);
+            Result:=Getadr(temp.L,info);
           end;
-          if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
-          begin
-          result:=temp;
-          isfound:=true;
-          exit;
-          end;
+        if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
+        begin
+        result:=temp;
+        exit;
+        end;
           temp:=temp^.Adr;
         end;
-         end;
-      end;
-      begin
-       found:=False;
-       result:=GAdr(head,info,found);
       end;
 
    function Levelwidth(head:PFigList; lvl:integer):Integer;
@@ -455,11 +444,11 @@ end;
    temp:=GetParentAdr(head,PAdr);
    if temp<>nil then
    begin
-   if temp.Info.Rc and (temp.Info.level=p.level-1) then
+   if temp.Info.Rc then
    temp.R:=nil;
-   if temp.Info.Lc and (temp.Info.level=p.level-1) and (temp.Info.row=p.Row-1)then
+   if temp.Info.Lc then
    temp.L:=nil;
-   if temp.Info.Dc and (temp.Info.Row=p.row-1) then
+   if temp.Info.Dc then
    temp.adr:=nil;
    end;
   end;

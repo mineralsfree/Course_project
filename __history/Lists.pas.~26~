@@ -287,12 +287,12 @@ end;
           begin
             Result:=Gadr(temp.L,info,isFound);
           end;
-          if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
-          begin
-          result:=temp;
-          isfound:=true;
-          exit;
-          end;
+        if (temp^.Info.x = info.x) and (temp^.Info.y = info.y) then
+        begin
+        result:=temp;
+        isfound:=true;
+        exit;
+        end;
           temp:=temp^.Adr;
         end;
          end;
@@ -455,11 +455,11 @@ end;
    temp:=GetParentAdr(head,PAdr);
    if temp<>nil then
    begin
-   if temp.Info.Rc and (temp.Info.level=p.level-1) then
+   if temp.Info.Rc then
    temp.R:=nil;
-   if temp.Info.Lc and (temp.Info.level=p.level-1) and (temp.Info.row=p.Row-1)then
+   if temp.Info.Lc then
    temp.L:=nil;
-   if temp.Info.Dc and (temp.Info.Row=p.row-1) then
+   if temp.Info.Dc then
    temp.adr:=nil;
    end;
   end;

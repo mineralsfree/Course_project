@@ -1,4 +1,4 @@
-unit Unit2;
+﻿unit Unit2;
 
 interface
 
@@ -30,6 +30,8 @@ type
     mniExportBmp: TMenuItem;
     dlgOpen1: TOpenDialog;
     mniExportPNG: TMenuItem;
+    dlgSave1: TSaveDialog;
+    dlgOpen2: TOpenDialog;
     procedure getCharParams(var Chrwidth, Chrheight:Integer);
     procedure FormCreate(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -87,14 +89,28 @@ lol:PFigList;
 implementation
 
 {$R *.dfm}
-
+function analyseParams: string; // The name of the file when opened is not through the program
+var
+params: string;
+i: integer;
+begin
+params:='';
+if ParamCount>0 then
+for i := 1 to ParamCount do
+begin
+params := params + ParamStr(i);
+if i<>ParamCount then params := params + ' ';
+end;
+result := params;
+end;
 procedure clrscreen(pb1:TPaintBox);
 begin
   pb1.Canvas.Brush.Color:=clWhite;
-  pb1.Canvas.Rectangle(0,0,pb1.width,pb1.Height);
+  pb1.Canvas.Rectangle(0,0,pb1.width,pb1.Height-5);
 end;
 procedure TKek.FormCreate(Sender: TObject);
 var INIT:TFigureInfo;
+path:string;
 begin
 pb1.canvas.Pen.Width:=3;
 createFigureHead(FigureHead);
@@ -103,6 +119,12 @@ clrscreen(pb1);
 Selected:=False;
 IfState:=RUP;
 pb1.Height:=800;
+path := analyseParams; // Анализируем входные параметры, открыта ли программа
+// открытием .brakh-файла
+if path <> '' then
+begin
+readfile(FigureHead, path,path);
+end;
 //scrollbox1.VertScrollBar.Position:=startY -20;
 //scrollbox1.VertScrollBar.Position:=0;
 end;
@@ -139,8 +161,9 @@ p:=GetAdr(figurehead,pinf);
    mmoInput.Width:=RectMinWidth;
    mmoInput.Height:=RectMinHeight;
    mmoInput.Visible:=True;
+   mmoInput.SetFocus;
    mmoInput.Lines.Clear;
-   mmoInput.SelStart:=0;
+   mmoInput.SelStart:=0 ;
    mmoInput.Lines.Add(p.Info.Txt);
    mmoInput.MaxLength:=60;
 
@@ -207,13 +230,68 @@ begin
 end;
 
 procedure TKek.Save1Click(Sender: TObject);
+
+var loc:string;
 begin
-SaveFile(FigureHead,'scheme.brakh','scheme.brakh');
+dlgSave1:=TSaveDialog.Create(Self);
+dlgSave1.Title := 'Save your text or word file';
+dlgSave1.InitialDir := GetCurrentDir;
+  // Ðàçðåøàåì ñîõðàíÿòü ôàéëû òèïà .txt è .doc
+  dlgSave1.Filter := 'brakhFile|*.brakh';
+  // Óñòàíîâêà ðàñøèðåíèÿ ïî óìîë÷àíèþ
+  dlgSave1.DefaultExt := 'brakh';
+  // Âûáîð òåêñòîâûõ ôàéëîâ êàê ñòàðòîâûé òèï ôèëüòðà
+  dlgSave1.FilterIndex := 1;
+  // Îòîáðàæåíèå äèàëîã ñîõðàíåíèÿ ôàéëà
+  if dlgSave1.Execute
+  then
+  else ShowMessage('Save file was cancelled');
+  // Îñâîáîæäåíèÿ äèàëîãà
+  loc:=dlgSave1.FileName;
+   //Close;
+   dlgSave1.Free;
+SaveFile(FigureHead,loc,loc);
 ShowMessage('saved');
 end;
 procedure TKek.Open1Click(Sender: TObject);
+var
+  i:integer;
+  cap,lol:string;
+  openDialog : TOpenDialog;
 begin
-ReadFile(FigureHead,'scheme.brakh','scheme.brakh');
+    // Переменная OpenDialog
+  // Создание объекта OpenDialog - назначение на нашу переменную OpenDialog
+  openDialog := TOpenDialog.Create(self);
+
+  // Установка начального каталога, чтобы сделать его текущим
+  openDialog.InitialDir := GetCurrentDir;
+
+  // Только разрешенные существующие файлы могут быть выбраны
+  openDialog.Options := [ofFileMustExist];
+
+  // Разрешено выбрать только .dpr и .pas файлы
+  openDialog.Filter :=
+    'brakh files|*.brakh';
+
+  // Выбор файлов Паскаля как стартовый тип фильтра
+  openDialog.FilterIndex := 1;
+ // ShowMessage(openDialog.FileName);
+  // Показ диалог открытия файла
+  if openDialog.Execute
+  then ShowMessage('File : '+openDialog.FileName)
+  else ShowMessage('Открытие файла остановлено');
+    cap:=openDialog.FileName;
+  // Освобождение диалога
+  openDialog.Free;
+  //  ShowMessage(openDialog.FileName);
+  i:=length(cap);
+  while cap[i]<>'\' do
+  begin
+    lol:=Copy(cap,i,length(cap)-i+1);
+    dec(i);
+  end;
+
+ReadFile(FigureHead,lol,lol);
 pb1.repaint;
 end;
 
@@ -228,6 +306,7 @@ begin
   if Key = VK_DELETE  then
   try
     DeleteBlock(Figurehead, Clickfigure);
+    ClickFigure:=GetClickFig(0,0,FigureHead,Selected);
   finally
 
   end;
@@ -240,12 +319,12 @@ if ClickAdr.R<>nil then
    except
 
    end;     }
- if key = VK_LEFT then
+ {if key = VK_LEFT then
  begin
  ClickFigure:=GetParentAdr(FigureHead,ClickAdr).Info;
  pb1.Repaint;
  exit;
- end;
+ end;      }
  if key = VK_UP then  //  showmessage('up');
   begin
    if Selected then
@@ -457,13 +536,12 @@ begin
     case IfState of
     RUP:
       begin
-      p.x:=prex.Info.x +prex.Info.width+ offset;   //   �������
+      p.x:=prex.Info.x +prex.Info.width+ offset;   //   Костыли
       p.y:=prex.Info.y;
       p.Row:=prex.Info.row;
       p.width:=RectMinWidth;
       p.level:=prex.Info.level+1;
       prex.info.RC:=true;
-
       CreateNode(FigureHead,p,prex.Info);
       end;
       RDOWN:
@@ -473,7 +551,7 @@ begin
       p.Row:=ClickFigure.row+1;
       p.width:=RectMinWidth;
 
-      prex.info.LC:=true;      //   ��� ���������, GetAdr �� �������� ���������
+      prex.info.LC:=true;      //   Тут крашиться, GetAdr Не работает правильно
 
       p.level:=ClickFigure.level+1;
        if p.level>1 then
@@ -497,9 +575,9 @@ begin
       CreateLeft(FigureHead,p,ClickFigure);
 
     end else
-        if (ClickFigure.FigType = RepeatFig) and IsRight then
+        if ((ClickFigure.FigType = RepeatFig) or (ClickFigure.FigType = WhileFig)) and IsRight and (prex.R=nil) then
     begin
-    p.x:=prex.Info.x +prex.Info.width+ offset;   //   �������
+    p.x:=prex.Info.x +prex.Info.width+ offset;   //   Костыли
     p.y:=prex.Info.y;
     p.Row:=prex.Info.row;
     p.width:=RectMinWidth;
@@ -538,15 +616,15 @@ procedure TKek.pb1Paint(Sender: TObject);
 var temp:PFigList;
 begin
   clrscreen(pb1);
-  if maxY>(Kek.pb1.Height- 400) then
+ // if maxY>(Kek.pb1.Height- 400) then
 begin
-Kek.ScrollBox1.Height:=Kek.ScrollBox1.Height+200;
-Kek.pb1.Height:=Kek.pb1.Height+200;
+Kek.ScrollBox1.Height:=MaxY+400;
+Kek.pb1.Height:=MaxY+400;
 end;
-if maxX>(Kek.pb1.Width-600) then
+//if maxX>(Kek.pb1.Width-600) then
 begin
-Kek.ScrollBox1.width:=Kek.ScrollBox1.width+500;
-Kek.pb1.width:=Kek.pb1.width+500;
+//Kek.ScrollBox1.width:=MaxX+400;
+Kek.pb1.width :=MaxX+400;
 end;
   DrawBlocks(pb1.Canvas,FigureHead,maxX,maxY,IfState);
 if Selected then
@@ -556,6 +634,7 @@ if Selected then
   end;
   defaultDraw(FigureHead,pb1.Canvas);
   drawend(FigureHead,pb1.Canvas);
+
 end;
 
 procedure TKek.btntaskClick(Sender: TObject);

@@ -374,7 +374,9 @@ temp:=head;
 while temp.adr<>nil do
     temp:=temp^.Adr;
 TextW:=Canvas.TextWidth(strBegin);
-TextH:=Canvas.TextHeight(strBegin);
+  TextH:=Canvas.TextHeight(strBegin);
+
+
 
   with Canvas do
   begin
